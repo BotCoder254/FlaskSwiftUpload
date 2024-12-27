@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examples - FlaskSwiftUpload</title>
+    <base href="../">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Scripts -->
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        'primary-dark': '#2563EB',
+                        accent: '#10B981'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 font-sans antialiased transition-colors duration-200 dark:bg-gray-900" 
+      x-data="{ mobileMenu: false, darkMode: localStorage.getItem('darkMode') === 'true' }" 
+      :class="{ 'dark': darkMode }"
+      x-init="$watch('darkMode', val => localStorage.setItem('darkMode', val))">
+    
+    <div class="min-h-screen pt-16 pb-12">
+        <!-- Breadcrumb -->
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <ol class="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+                <li>
+                    <a href="./" class="hover:text-primary">Home</a>
+                </li>
+                <li>
+                    <i class="fas fa-chevron-right text-xs"></i>
+                </li>
+                <li>Examples</li>
+            </ol>
+        </nav>
+
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-12">
+                <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">Examples</h1>
+                <p class="text-xl text-gray-600 dark:text-gray-300">Explore practical examples of FlaskSwiftUpload in action</p>
+            </div>
+
+            <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                <!-- Basic Examples -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+                    <div class="p-6">
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Basic Examples</h2>
+                        <ul class="space-y-3">
+                            <li>
+                                <a href="./examples/basic/simple-upload.html" class="text-primary hover:text-primary-dark dark:text-blue-400 dark:hover:text-blue-300">
+                                    Simple File Upload
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Advanced Examples -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+                    <div class="p-6">
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Advanced Examples</h2>
+                        <ul class="space-y-3">
+                            <li>
+                                <a href="./examples/advanced/chunked-upload.html" class="text-primary hover:text-primary-dark dark:text-blue-400 dark:hover:text-blue-300">
+                                    Chunked Upload
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Integration Examples -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+                    <div class="p-6">
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Integration Examples</h2>
+                        <ul class="space-y-3">
+                            <li>
+                                <a href="./examples/integration/authentication.html" class="text-primary hover:text-primary-dark dark:text-blue-400 dark:hover:text-blue-300">
+                                    Authentication
+                                </a>
+                            </li>
+                            <li>
+                                <a href="./examples/integration/media-processing.html" class="text-primary hover:text-primary-dark dark:text-blue-400 dark:hover:text-blue-300">
+                                    Media Processing
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

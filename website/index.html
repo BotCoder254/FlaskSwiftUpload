@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlaskSwiftUpload - Modern File Upload for Flask</title>
+    <meta name="description" content="FlaskSwiftUpload is a powerful file upload library for Flask applications with support for chunked uploads, progress tracking, and extensive customization options.">
+    
+    <!-- Base URL for GitHub Pages -->
+    <base href="./">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="./images/favicon.svg">
+    <link rel="icon" type="image/png" href="./images/favicon.png">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+    
+    <!-- Scripts -->
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    
+    <!-- Open Graph tags -->
+    <meta property="og:title" content="FlaskSwiftUpload - Modern File Upload for Flask">
+    <meta property="og:description" content="A powerful file upload library for Flask applications with support for chunked uploads, progress tracking, and extensive customization options.">
+    <meta property="og:image" content="./images/og-image.png">
+    <meta property="og:url" content="https://your-username.github.io/flask-swift-upload/">
+    
+    <!-- Twitter Card tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="FlaskSwiftUpload - Modern File Upload for Flask">
+    <meta name="twitter:description" content="A powerful file upload library for Flask applications with support for chunked uploads, progress tracking, and extensive customization options.">
+    <meta name="twitter:image" content="./images/og-image.png">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        'primary-dark': '#2563EB',
+                        accent: '#10B981'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 font-sans antialiased transition-colors duration-200 dark:bg-gray-900" 
+      x-data="{ mobileMenu: false, darkMode: localStorage.getItem('darkMode') === 'true' }" 
+      :class="{ 'dark': darkMode }"
+      x-init="$watch('darkMode', val => localStorage.setItem('darkMode', val))">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-200 shadow-sm" x-data="{ open: false }">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Logo and primary nav -->
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <img src="images/logo.svg" alt="FlaskSwiftUpload Logo" class="h-8 w-auto mr-3">
+                        <a href="index.html" class="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">FlaskSwiftUpload</a>
+                    </div>
+                    <div class="hidden sm:ml-8 sm:flex sm:space-x-8">
+                        <div class="relative group">
+                            <a href="docs/quickstart.html" class="inline-flex items-center px-1 pt-1 text-gray-600 hover:text-primary border-b-2 border-transparent hover:border-primary transition-colors">
+                                Getting Started
+                            </a>
+                        </div>
+                        <div class="relative group">
+                            <button class="inline-flex items-center px-1 pt-1 text-gray-600 hover:text-primary group-hover:text-primary border-b-2 border-transparent group-hover:border-primary transition-colors">
+                                Documentation
+                                <svg class="ml-2 h-4 w-4 transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div class="absolute left-0 mt-1 w-64 rounded-lg bg-white ring-1 ring-black ring-opacity-5 shadow-lg transform opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                <div class="p-2 grid grid-cols-1 gap-1">
+                                    <div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                        Core Concepts
+                                    </div>
+                                    <a href="docs/configuration.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">Configuration Guide</a>
+                                    <a href="docs/security.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">Security Guide</a>
+                                    <a href="docs/error-handling.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">Error Handling</a>
+                                    
+                                    <div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mt-2">
+                                        Advanced Topics
+                                    </div>
+                                    <a href="docs/mongodb.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">MongoDB Integration</a>
+                                    <a href="docs/rate-limiting.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">Rate Limiting</a>
+                                    <a href="docs/performance.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">Performance Guide</a>
+                                    <a href="docs/deployment.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">Deployment Guide</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="relative group">
+                            <button class="inline-flex items-center px-1 pt-1 text-gray-600 hover:text-primary group-hover:text-primary border-b-2 border-transparent group-hover:border-primary transition-colors">
+                                Examples
+                                <svg class="ml-2 h-4 w-4 transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div class="absolute left-0 mt-1 w-56 rounded-lg bg-white ring-1 ring-black ring-opacity-5 shadow-lg transform opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                <div class="p-2 grid grid-cols-1 gap-1">
+                                    <div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                        Basic
+                                    </div>
+                                    <a href="examples/basic/simple-upload.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">Simple Upload</a>
+                                    <a href="examples/basic/multiple-upload.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">Multiple Upload</a>
+                                    
+                                    <div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mt-2">
+                                        Advanced
+                                    </div>
+                                    <a href="examples/advanced/chunked-upload.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">Chunked Upload</a>
+                                    
+                                    
+                                    <div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mt-2">
+                                        Integration
+                                    </div>
+                                    <a href="examples/integration/authentication.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">Authentication</a>
+                                    <a href="examples/integration/media-processing.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">Media Processing</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="relative group">
+                            <button class="inline-flex items-center px-1 pt-1 text-gray-600 hover:text-primary group-hover:text-primary border-b-2 border-transparent group-hover:border-primary transition-colors">
+                                API
+                                <svg class="ml-2 h-4 w-4 transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div class="absolute left-0 mt-1 w-48 rounded-lg bg-white ring-1 ring-black ring-opacity-5 shadow-lg transform opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                <div class="p-2 grid grid-cols-1 gap-1">
+                                    <a href="docs/api/core.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">Core API</a>
+                                    <a href="docs/api/extensions.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">Extensions</a>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right side -->
+                <div class="flex items-center space-x-4">
+                    <a href="https://github.com/your-repo/flask-swift-upload" 
+                       class="text-gray-600 hover:text-primary transition-colors"
+                       target="_blank"
+                       rel="noopener noreferrer">
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    <button 
+                        class="p-2 text-gray-600 hover:text-primary transition-colors rounded-full hover:bg-gray-100"
+                        @click="darkMode = !darkMode">
+                        <svg x-show="!darkMode" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                        <svg x-show="darkMode" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="flex items-center sm:hidden">
+                    <button 
+                        @click="open = !open" 
+                        class="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-primary hover:bg-gray-100"
+                        aria-expanded="false"
+                    >
+                        <span class="sr-only">Open main menu</span>
+                        <svg 
+                            x-show="!open"
+                            class="h-6 w-6" 
+                            fill="none" 
+                            viewBox="0 0 24 24" 
+                            stroke="currentColor" 
+                            aria-hidden="true"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <svg 
+                            x-show="open"
+                            class="h-6 w-6" 
+                            fill="none" 
+                            viewBox="0 0 24 24" 
+                            stroke="currentColor" 
+                            aria-hidden="true"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div 
+            x-show="open" 
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 transform -translate-y-2"
+            x-transition:enter-end="opacity-100 transform translate-y-0"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 transform translate-y-0"
+            x-transition:leave-end="opacity-0 transform -translate-y-2"
+            class="sm:hidden bg-white border-b border-gray-200"
+            @click.away="open = false"
+        >
+            <div class="pt-2 pb-3 space-y-1">
+                <a href="docs/quickstart.html" 
+                   class="block pl-3 pr-4 py-2 text-base font-medium text-gray-600 hover:text-primary hover:bg-gray-50">
+                    Getting Started
+                </a>
+
+                <!-- Mobile Documentation Menu -->
+                <div x-data="{ expanded: false }">
+                    <button 
+                        @click="expanded = !expanded"
+                        class="w-full flex justify-between items-center pl-3 pr-4 py-2 text-base font-medium text-gray-600 hover:text-primary hover:bg-gray-50"
+                    >
+                        Documentation
+                        <svg 
+                            class="ml-2 h-5 w-5 transform transition-transform duration-200"
+                            :class="{ 'rotate-180': expanded }"
+                            fill="none" 
+                            viewBox="0 0 24 24" 
+                            stroke="currentColor"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div 
+                        x-show="expanded"
+                        x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 transform -translate-y-2"
+                        x-transition:enter-end="opacity-100 transform translate-y-0"
+                        class="pl-4"
+                    >
+                        <a href="docs/configuration.html" class="block px-4 py-2 text-sm text-gray-600 hover:text-primary">Configuration Guide</a>
+                        <a href="docs/security.html" class="block px-4 py-2 text-sm text-gray-600 hover:text-primary">Security Guide</a>
+                        <a href="docs/error-handling.html" class="block px-4 py-2 text-sm text-gray-600 hover:text-primary">Error Handling</a>
+                        <a href="docs/mongodb.html" class="block px-4 py-2 text-sm text-gray-600 hover:text-primary">MongoDB Integration</a>
+                        <a href="docs/rate-limiting.html" class="block px-4 py-2 text-sm text-gray-600 hover:text-primary">Rate Limiting</a>
+                        <a href="docs/performance.html" class="block px-4 py-2 text-sm text-gray-600 hover:text-primary">Performance Guide</a>
+                        <a href="docs/deployment.html" class="block px-4 py-2 text-sm text-gray-600 hover:text-primary">Deployment Guide</a>
+                    </div>
+                </div>
+
+                <!-- Mobile Examples Menu -->
+                <div x-data="{ expanded: false }">
+                    <button 
+                        @click="expanded = !expanded"
+                        class="w-full flex justify-between items-center pl-3 pr-4 py-2 text-base font-medium text-gray-600 hover:text-primary hover:bg-gray-50"
+                    >
+                        Examples
+                        <svg 
+                            class="ml-2 h-5 w-5 transform transition-transform duration-200"
+                            :class="{ 'rotate-180': expanded }"
+                            fill="none" 
+                            viewBox="0 0 24 24" 
+                            stroke="currentColor"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div 
+                        x-show="expanded"
+                        x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 transform -translate-y-2"
+                        x-transition:enter-end="opacity-100 transform translate-y-0"
+                        class="pl-4"
+                    >
+                        <a href="examples/basic/simple-upload.html" class="block px-4 py-2 text-sm text-gray-600 hover:text-primary">Simple Upload</a>
+                        <a href="examples/basic/multiple-upload.html" class="block px-4 py-2 text-sm text-gray-600 hover:text-primary">Multiple Upload</a>
+                        <a href="examples/advanced/chunked-upload.html" class="block px-4 py-2 text-sm text-gray-600 hover:text-primary">Chunked Upload</a>
+                        <a href="examples/advanced/drag-drop.html" class="block px-4 py-2 text-sm text-gray-600 hover:text-primary">Drag & Drop</a>
+                        <a href="examples/integration/authentication.html" class="block px-4 py-2 text-sm text-gray-600 hover:text-primary">Authentication</a>
+                        <a href="examples/integration/media-processing.html" class="block px-4 py-2 text-sm text-gray-600 hover:text-primary">Media Processing</a>
+                    </div>
+                </div>
+
+                <!-- Mobile API Menu -->
+                <div x-data="{ expanded: false }">
+                    <button 
+                        @click="expanded = !expanded"
+                        class="w-full flex justify-between items-center pl-3 pr-4 py-2 text-base font-medium text-gray-600 hover:text-primary hover:bg-gray-50"
+                    >
+                        API
+                        <svg 
+                            class="ml-2 h-5 w-5 transform transition-transform duration-200"
+                            :class="{ 'rotate-180': expanded }"
+                            fill="none" 
+                            viewBox="0 0 24 24" 
+                            stroke="currentColor"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div 
+                        x-show="expanded"
+                        x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 transform -translate-y-2"
+                        x-transition:enter-end="opacity-100 transform translate-y-0"
+                        class="pl-4"
+                    >
+                        <a href="docs/api/core.html" class="block px-4 py-2 text-sm text-gray-600 hover:text-primary">Core API</a>
+                        <a href="docs/api/extensions.html" class="block px-4 py-2 text-sm text-gray-600 hover:text-primary">Extensions</a>
+                        <a href="docs/api/events.html" class="block px-4 py-2 text-sm text-gray-600 hover:text-primary">Events</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20 bg-gradient-to-br from-primary via-secondary to-accent overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <div class="absolute inset-0 bg-grid-white/[0.05] bg-[size:20px_20px]"></div>
+            <div class="relative">
+                <div class="text-center max-w-3xl mx-auto">
+                    <h1 class="text-4xl tracking-tight font-extrabold text-white sm:text-5xl md:text-6xl">
+                        <span class="block">Modern File Upload</span>
+                        <span class="block text-indigo-200">for Flask Applications</span>
+                    </h1>
+                    <p class="mt-6 text-xl text-indigo-100 max-w-2xl mx-auto">
+                        High-performance file uploads with chunking, MongoDB integration, and advanced processing capabilities.
+                    </p>
+                    <div class="mt-8 flex justify-center space-x-4">
+                        <a href="#quickstart" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition-colors duration-200">
+                            <i class="fas fa-rocket mr-2"></i>
+                            Get Started
+                        </a>
+                        <a href="#documentation" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-indigo-600 bg-white hover:bg-gray-50 transition-colors duration-200">
+                            <i class="fas fa-book mr-2"></i>
+                            Documentation
+                        </a>
+                    </div>
+                    <div class="mt-12">
+                        <pre class="language-python rounded-xl bg-gray-900/70 p-6 text-left"><code>pip install flask-swift-upload</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <div class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h2 class="text-4xl font-bold text-gray-900">Everything You Need</h2>
+                <p class="mt-4 text-xl text-gray-600">A complete solution for handling file uploads in Flask</p>
+            </div>
+
+            <div class="mt-20">
+                <div class="grid grid-cols-1 gap-12 lg:grid-cols-3">
+                    <!-- Core Features -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                        <div class="p-6">
+                            <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                                <i class="fas fa-rocket text-xl text-primary"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-4">Core Features</h3>
+                            <ul class="space-y-3">
+                                <li>
+                                    <a href="docs/quickstart.html" class="flex items-center text-gray-600 hover:text-primary">
+                                        <i class="fas fa-arrow-right mr-2"></i>
+                                        Quick Installation
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="docs/configuration.html" class="flex items-center text-gray-600 hover:text-primary">
+                                        <i class="fas fa-arrow-right mr-2"></i>
+                                        Easy Configuration
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="examples/basic/simple-upload.html" class="flex items-center text-gray-600 hover:text-primary">
+                                        <i class="fas fa-arrow-right mr-2"></i>
+                                        Simple File Upload
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Features -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                        <div class="p-6">
+                            <div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center mb-6">
+                                <i class="fas fa-layer-group text-xl text-secondary"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-4">Advanced Features</h3>
+                            <ul class="space-y-3">
+                                <li>
+                                    <a href="examples/advanced/chunked-upload.html" class="flex items-center text-gray-600 hover:text-primary">
+                                        <i class="fas fa-arrow-right mr-2"></i>
+                                        Chunked Upload
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="examples/integration/media-processing.html" class="flex items-center text-gray-600 hover:text-primary">
+                                        <i class="fas fa-arrow-right mr-2"></i>
+                                        Media Processing
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="docs/security.html" class="flex items-center text-gray-600 hover:text-primary">
+                                        <i class="fas fa-arrow-right mr-2"></i>
+                                        Security Features
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Integrations -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                        <div class="p-6">
+                            <div class="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mb-6">
+                                <i class="fas fa-puzzle-piece text-xl text-accent"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-4">Integrations</h3>
+                            <ul class="space-y-3">
+                                <li>
+                                    <a href="docs/mongodb.html" class="flex items-center text-gray-600 hover:text-primary">
+                                        <i class="fas fa-arrow-right mr-2"></i>
+                                        MongoDB Storage
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="docs/api/extensions.html" class="flex items-center text-gray-600 hover:text-primary">
+                                        <i class="fas fa-arrow-right mr-2"></i>
+                                        API Extensions
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="examples/integration/authentication.html" class="flex items-center text-gray-600 hover:text-primary">
+                                        <i class="fas fa-arrow-right mr-2"></i>
+                                        Authentication
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Documentation Section -->
+    <div class="py-24 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h2 class="text-4xl font-bold text-gray-900">Documentation</h2>
+                <p class="mt-4 text-xl text-gray-600">Everything you need to get started</p>
+            </div>
+
+            <div class="mt-20 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+                <!-- Getting Started -->
+                <a href="docs/quickstart.html" class="block">
+                    <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+                        <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                            <i class="fas fa-play text-xl text-primary"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Getting Started</h3>
+                        <p class="text-gray-600">Quick installation and basic usage guide</p>
+                    </div>
+                </a>
+
+                <!-- API Reference -->
+                <a href="docs/api/core.html" class="block">
+                    <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+                        <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                            <i class="fas fa-code text-xl text-primary"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">API Reference</h3>
+                        <p class="text-gray-600">Complete API documentation</p>
+                    </div>
+                </a>
+
+                <!-- Security Guide -->
+                <a href="docs/security.html" class="block">
+                    <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+                        <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                            <i class="fas fa-shield-alt text-xl text-primary"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Security Guide</h3>
+                        <p class="text-gray-600">Best practices for secure file handling</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Examples Section -->
+    <div class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h2 class="text-4xl font-bold text-gray-900">Examples</h2>
+                <p class="mt-4 text-xl text-gray-600">Learn by example with our interactive demos</p>
+            </div>
+
+            <div class="mt-20 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+                <!-- Basic Upload -->
+                <a href="examples/basic/simple-upload.html" class="block">
+                    <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+                        <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                            <i class="fas fa-upload text-xl text-primary"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Basic Upload</h3>
+                        <p class="text-gray-600">Simple file upload example</p>
+                    </div>
+                </a>
+
+                <!-- Chunked Upload -->
+                <a href="examples/advanced/chunked-upload.html" class="block">
+                    <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+                        <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                            <i class="fas fa-layer-group text-xl text-primary"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Chunked Upload</h3>
+                        <p class="text-gray-600">Handle large file uploads</p>
+                    </div>
+                </a>
+
+                <!-- Media Processing -->
+                <a href="examples/integration/media-processing.html" class="block">
+                    <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+                        <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                            <i class="fas fa-photo-film text-xl text-primary"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Media Processing</h3>
+                        <p class="text-gray-600">Process images and videos</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-6">
+                        <img src="images/logo.svg" class="h-8 w-auto" alt="FlaskSwiftUpload Logo">
+                        <span class="text-xl font-bold">FlaskSwiftUpload</span>
+                    </div>
+                    <p class="text-gray-400">Professional file upload module for Flask applications.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Documentation</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#quickstart" class="text-gray-400 hover:text-white">Quickstart</a></li>
+                        <li><a href="#installation" class="text-gray-400 hover:text-white">Installation</a></li>
+                        <li><a href="#configuration" class="text-gray-400 hover:text-white">Configuration</a></li>
+                        <li><a href="#api-reference" class="text-gray-400 hover:text-white">API Reference</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Community</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">GitHub</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Discord</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Twitter</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Legal</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Privacy Policy</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Terms of Service</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">License</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-8 pt-8 border-t border-gray-800 text-center">
+                <p class="text-gray-400">&copy; 2024 FlaskSwiftUpload. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/animations.js"></script>
+</body>
+</html>

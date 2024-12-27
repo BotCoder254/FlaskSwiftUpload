@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication Example - FlaskSwiftUpload</title>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body class="bg-gray-50 font-sans antialiased" x-data="{ mobileMenu: false, darkMode: false }">
+    <!-- Navigation (Same as before) -->
+
+    <!-- Main Content -->
+    <div class="pt-24 pb-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="flex mb-8" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="../index.html" class="text-gray-500 hover:text-primary">
+                            <i class="fas fa-home mr-2"></i>
+                            Examples
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <a href="#" class="text-gray-500 hover:text-primary">Integration</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <span class="text-gray-900">Authentication</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+
+            <div class="mb-12">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">Authentication Example</h1>
+                <p class="text-xl text-gray-600">Secure your file uploads with user authentication</p>
+            </div>
+
+            <!-- Live Demo -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Live Demo</h2>
+                    <div x-data="authDemo()" class="max-w-xl mx-auto">
+                        <!-- Login Form -->
+                        <div x-show="!isAuthenticated" class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                <input 
+                                    type="email" 
+                                    x-model="email"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
+                                    placeholder="Enter your email"
+                                >
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                                <input 
+                                    type="password" 
+                                    x-model="password"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
+                                    placeholder="Enter your password"
+                                >
+                            </div>
+                            <button 
+                                @click="login"
+                                class="w-full bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary/90 transition-colors"
+                            >
+                                Login
+                            </button>
+                        </div>
+
+                        <!-- Upload Form -->
+                        <div x-show="isAuthenticated" class="space-y-6">
+                            <div class="flex justify-between items-center">
+                                <p class="text-gray-600">
+                                    Logged in as <span class="font-medium" x-text="email"></span>
+                                </p>
+                                <button 
+                                    @click="logout"
+                                    class="text-gray-500 hover:text-gray-700"
+                                >
+                                    Logout
+                                </button>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Upload File</label>
+                                <div 
+                                    class="flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg"
+                                    @dragover.prevent="dragOver = true"
+                                    @dragleave.prevent="dragOver = false"
+                                    @drop.prevent="handleDrop($event)"
+                                    :class="{'border-primary': dragOver}"
+                                >
+                                    <div class="space-y-1 text-center">
+                                        <i class="fas fa-cloud-upload-alt text-4xl" :class="uploading ? 'text-primary' : 'text-gray-400'"></i>
+                                        <div class="flex text-sm text-gray-600">
+                                            <label class="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-secondary">
+                                                <span>Upload a file</span>
+                                                <input type="file" class="sr-only" @change="handleFileSelect">
+                                            </label>
+                                            <p class="pl-1">or drag and drop</p>
+                                        </div>
+                                        <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Upload Progress -->
+                            <div x-show="uploading" class="space-y-2">
+                                <div class="bg-gray-200 rounded-full overflow-hidden">
+                                    <div class="h-2 bg-primary" :style="'width: ' + progress + '%'"></div>
+                                </div>
+                                <p class="text-sm text-gray-600 text-center" x-text="progress + '%'"></p>
+                            </div>
+
+                            <!-- Upload History -->
+                            <div x-show="files.length > 0">
+                                <h3 class="text-lg font-medium mb-4">Upload History</h3>
+                                <ul class="space-y-2">
+                                    <template x-for="file in files" :key="file.id">
+                                        <li class="flex items-center justify-between py-2 px-4 bg-gray-50 rounded-lg">
+                                            <span x-text="file.name" class="text-gray-700"></span>
+                                            <button class="text-red-500 hover:text-red-700" @click="deleteFile(file.id)">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementation -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Implementation</h2>
+
+                    <!-- Backend Code -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold mb-4">Backend (Flask)</h3>
+                        <pre class="language-python"><code>from flask import Flask, request, jsonify
+from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
+from flask_swift_upload import SwiftUpload
+from werkzeug.security import generate_password_hash, check_password_hash
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your-secret-key'
+login_manager = LoginManager()
+login_manager.init_app(app)
+swift_upload = SwiftUpload(app)
+
+class User(UserMixin):
+    def __init__(self, id, email, password_hash):
+        self.id = id
+        self.email = email
+        self.password_hash = password_hash
+
+# Mock user database
+users = {}
+
+@login_manager.user_loader
+def load_user(user_id):
+    return users.get(user_id)
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+    
+    user = next((u for u in users.values() if u.email == email), None)
+    if user and check_password_hash(user.password_hash, password):
+        login_user(user)
+        return jsonify({'success': True})
+    
+    return jsonify({'success': False, 'error': 'Invalid credentials'})
+
+@app.route('/upload', methods=['POST'])
+@login_required
+def upload():
+    return swift_upload.handle_upload(
+        user_id=current_user.id,
+        allowed_extensions=['jpg', 'png', 'gif'],
+        max_size=10 * 1024 * 1024  # 10MB
+    )
+
+@app.route('/files', methods=['GET'])
+@login_required
+def get_files():
+    # Get user's files from database
+    user_files = get_user_files(current_user.id)
+    return jsonify(user_files)
+
+@app.route('/files/<file_id>', methods=['DELETE'])
+@login_required
+def delete_file(file_id):
+    # Delete file if it belongs to the user
+    if file_belongs_to_user(file_id, current_user.id):
+        delete_user_file(file_id)
+        return jsonify({'success': True})
+    return jsonify({'success': False, 'error': 'Permission denied'}), 403</code></pre>
+                    </div>
+
+                    <!-- Frontend Code -->
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4">Frontend (JavaScript)</h3>
+                        <pre class="language-javascript"><code>function authDemo() {
+    return {
+        isAuthenticated: false,
+        email: '',
+        password: '',
+        files: [],
+        uploading: false,
+        progress: 0,
+        dragOver: false,
+
+        async login() {
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: this.email,
+                        password: this.password
+                    })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    this.isAuthenticated = true;
+                    await this.loadFiles();
+                }
+            } catch (error) {
+                console.error('Login failed:', error);
+            }
+        },
+
+        logout() {
+            this.isAuthenticated = false;
+            this.files = [];
+        },
+
+        async loadFiles() {
+            try {
+                const response = await fetch('/files');
+                const files = await response.json();
+                this.files = files;
+            } catch (error) {
+                console.error('Failed to load files:', error);
+            }
+        },
+
+        async handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                await this.uploadFile(file);
+            }
+        },
+
+        async handleDrop(event) {
+            const file = event.dataTransfer.files[0];
+            if (file) {
+                await this.uploadFile(file);
+            }
+            this.dragOver = false;
+        },
+
+        async uploadFile(file) {
+            this.uploading = true;
+            this.progress = 0;
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData,
+                    onUploadProgress: (event) => {
+                        this.progress = Math.round((event.loaded * 100) / event.total);
+                    }
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    await this.loadFiles();
+                }
+            } catch (error) {
+                console.error('Upload failed:', error);
+            } finally {
+                this.uploading = false;
+            }
+        },
+
+        async deleteFile(fileId) {
+            try {
+                const response = await fetch(`/files/${fileId}`, {
+                    method: 'DELETE'
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    this.files = this.files.filter(f => f.id !== fileId);
+                }
+            } catch (error) {
+                console.error('Delete failed:', error);
+            }
+        }
+    };
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/animations.js"></script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<svg width="240" height="240" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4338CA">
+        <animate attributeName="stop-color" values="#4338CA;#6D28D9;#4338CA" dur="3s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" stop-color="#6D28D9">
+        <animate attributeName="stop-color" values="#6D28D9;#7C3AED;#6D28D9" dur="3s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Main circle -->
+  <circle cx="120" cy="120" r="90" fill="url(#bgGrad)" filter="url(#glow)">
+    <animate attributeName="r" values="85;90;85" dur="3s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Decorative ring -->
+  <circle cx="120" cy="120" r="70" stroke="rgba(255,255,255,0.2)" stroke-width="2" fill="none">
+    <animate attributeName="r" values="65;75;65" dur="3s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Upload symbol -->
+  <g transform="translate(120,120)" filter="url(#glow)">
+    <!-- Arrow stem -->
+    <line x1="0" y1="25" x2="0" y2="-25" stroke="white" stroke-width="8" stroke-linecap="round">
+      <animate attributeName="y2" values="-25;-35;-25" dur="1.5s" repeatCount="indefinite"/>
+    </line>
+    <!-- Arrow head -->
+    <path d="M-20,0 L0,-25 L20,0" stroke="white" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <animate attributeName="d" values="M-20,0 L0,-25 L20,0;M-20,-10 L0,-35 L20,-10;M-20,0 L0,-25 L20,0" dur="1.5s" repeatCount="indefinite"/>
+    </path>
+  </g>
+</svg>

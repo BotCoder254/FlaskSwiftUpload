@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MongoDB Integration - FlaskSwiftUpload</title>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body class="bg-gray-50 font-sans antialiased" x-data="{ mobileMenu: false, darkMode: false }">
+    <!-- Main Content -->
+    <div class="pt-24 pb-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Breadcrumb -->
+            <nav class="flex mb-8" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="../index.html" class="text-gray-500 hover:text-primary">
+                            <i class="fas fa-home mr-2"></i>
+                            Docs
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <span class="text-gray-900">MongoDB Integration</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+
+            <div class="mb-12">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">MongoDB Integration</h1>
+                <p class="text-xl text-gray-600">Store and manage files using MongoDB GridFS</p>
+            </div>
+
+            <!-- Installation -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Installation</h2>
+                    <p class="text-gray-600 mb-6">Install the required dependencies for MongoDB integration.</p>
+                    
+                    <pre class="language-bash"><code>pip install flask-swift-upload[mongodb]
+# or
+pip install pymongo</code></pre>
+                </div>
+            </div>
+
+            <!-- Basic Usage -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Basic Usage</h2>
+                    <p class="text-gray-600 mb-6">Configure FlaskSwiftUpload to use MongoDB GridFS for file storage.</p>
+
+                    <pre class="language-python"><code>from flask import Flask
+from flask_swift_upload import SwiftUpload
+from flask_swift_upload.storage import MongoGridFSStorage
+from pymongo import MongoClient
+
+app = Flask(__name__)
+
+# MongoDB configuration
+client = MongoClient('mongodb://localhost:27017/')
+db = client.your_database
+
+# Configure SwiftUpload with MongoDB storage
+app.config['SWIFT_STORAGE_BACKEND'] = 'mongodb'
+app.config['SWIFT_MONGODB_URI'] = 'mongodb://localhost:27017/'
+app.config['SWIFT_MONGODB_DB'] = 'your_database'
+
+swift_upload = SwiftUpload(app)
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    return swift_upload.handle_upload()</code></pre>
+                </div>
+            </div>
+
+            <!-- Advanced Features -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Advanced Features</h2>
+
+                    <!-- Custom Metadata -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold mb-4">Custom Metadata</h3>
+                        <pre class="language-python"><code>@app.route('/upload/with-metadata', methods=['POST'])
+def upload_with_metadata():
+    metadata = {
+        'user_id': current_user.id,
+        'category': request.form.get('category'),
+        'tags': request.form.getlist('tags')
+    }
+    
+    return swift_upload.handle_upload(metadata=metadata)</code></pre>
+                    </div>
+
+                    <!-- File Retrieval -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold mb-4">File Retrieval</h3>
+                        <pre class="language-python"><code>@app.route('/files/<file_id>')
+def get_file(file_id):
+    file_data = swift_upload.storage.get_file(file_id)
+    if file_data:
+        return send_file(
+            file_data,
+            download_name=file_data.filename,
+            mimetype=file_data.content_type
+        )
+    return 'File not found', 404</code></pre>
+                    </div>
+
+                    <!-- File Search -->
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4">File Search</h3>
+                        <pre class="language-python"><code>@app.route('/files/search')
+def search_files():
+    query = {
+        'metadata.user_id': current_user.id,
+        'metadata.category': request.args.get('category')
+    }
+    
+    files = swift_upload.storage.find_files(query)
+    return jsonify([{
+        'id': str(f._id),
+        'filename': f.filename,
+        'metadata': f.metadata
+    } for f in files])</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuration Reference -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Configuration Reference</h2>
+                    <div class="grid gap-6 md:grid-cols-2">
+                        <!-- MongoDB Settings -->
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4">MongoDB Settings</h3>
+                            <ul class="space-y-4">
+                                <li>
+                                    <div class="font-medium text-gray-900">SWIFT_MONGODB_URI</div>
+                                    <div class="text-gray-600">MongoDB connection URI</div>
+                                    <div class="text-sm text-gray-500">Default: 'mongodb://localhost:27017/'</div>
+                                </li>
+                                <li>
+                                    <div class="font-medium text-gray-900">SWIFT_MONGODB_DB</div>
+                                    <div class="text-gray-600">MongoDB database name</div>
+                                    <div class="text-sm text-gray-500">Required</div>
+                                </li>
+                                <li>
+                                    <div class="font-medium text-gray-900">SWIFT_MONGODB_COLLECTION</div>
+                                    <div class="text-gray-600">GridFS collection prefix</div>
+                                    <div class="text-sm text-gray-500">Default: 'fs'</div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Storage Settings -->
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4">Storage Settings</h3>
+                            <ul class="space-y-4">
+                                <li>
+                                    <div class="font-medium text-gray-900">SWIFT_CHUNK_SIZE</div>
+                                    <div class="text-gray-600">GridFS chunk size in bytes</div>
+                                    <div class="text-sm text-gray-500">Default: 261120</div>
+                                </li>
+                                <li>
+                                    <div class="font-medium text-gray-900">SWIFT_READ_PREFERENCE</div>
+                                    <div class="text-gray-600">MongoDB read preference</div>
+                                    <div class="text-sm text-gray-500">Default: 'primary'</div>
+                                </li>
+                                <li>
+                                    <div class="font-medium text-gray-900">SWIFT_WRITE_CONCERN</div>
+                                    <div class="text-gray-600">MongoDB write concern</div>
+                                    <div class="text-sm text-gray-500">Default: 1</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/animations.js"></script>
+</body>
+</html>

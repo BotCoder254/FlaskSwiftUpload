@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caching & Performance - FlaskSwiftUpload</title>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body class="bg-gray-50 font-sans antialiased" x-data="{ mobileMenu: false, darkMode: false }">
+    <!-- Main Content -->
+    <div class="pt-24 pb-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Breadcrumb -->
+            <nav class="flex mb-8" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="../index.html" class="text-gray-500 hover:text-primary">
+                            <i class="fas fa-home mr-2"></i>
+                            Docs
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <span class="text-gray-900">Performance</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+
+            <div class="mb-12">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">Caching & Performance</h1>
+                <p class="text-xl text-gray-600">Optimize your file uploads for speed and efficiency</p>
+            </div>
+
+            <!-- Caching Strategies -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Caching Strategies</h2>
+                    
+                    <!-- File Metadata Caching -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold mb-4">File Metadata Caching</h3>
+                        <pre class="language-python"><code>from flask_caching import Cache
+
+cache = Cache(app, config={
+    'CACHE_TYPE': 'redis',
+    'CACHE_REDIS_URL': 'redis://localhost:6379/0'
+})
+
+@app.route('/files/<file_id>')
+@cache.memoize(timeout=300)
+def get_file_metadata(file_id):
+    return swift_upload.storage.get_metadata(file_id)</code></pre>
+                    </div>
+
+                    <!-- Response Caching -->
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4">Response Caching</h3>
+                        <pre class="language-python"><code>@app.route('/files/<file_id>/download')
+def download_file(file_id):
+    file_data = swift_upload.storage.get_file(file_id)
+    response = send_file(
+        file_data,
+        mimetype=file_data.content_type
+    )
+    response.headers['Cache-Control'] = 'public, max-age=31536000'
+    return response</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Optimizations -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Performance Optimizations</h2>
+
+                    <!-- Chunked Uploads -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold mb-4">Chunked Uploads</h3>
+                        <pre class="language-python"><code>@app.route('/upload/chunked', methods=['POST'])
+def chunked_upload():
+    return swift_upload.handle_chunked_upload(
+        chunk_size=1024 * 1024,  # 1MB chunks
+        parallel_uploads=True,
+        max_parallel_chunks=3
+    )</code></pre>
+                    </div>
+
+                    <!-- Async Processing -->
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4">Async Processing</h3>
+                        <pre class="language-python"><code>from celery import Celery
+
+celery = Celery('tasks', broker='redis://localhost:6379/1')
+
+@celery.task
+def process_upload(file_id):
+    file = swift_upload.storage.get_file(file_id)
+    # Process file asynchronously
+    process_file(file)
+
+@app.route('/upload', methods=['POST'])
+def async_upload():
+    result = swift_upload.handle_upload()
+    process_upload.delay(result['file_id'])
+    return result</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CDN Integration -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">CDN Integration</h2>
+                    <pre class="language-python"><code>from flask_swift_upload.cdn import CloudFrontCDN
+
+cdn = CloudFrontCDN(
+    distribution_id='YOUR_DISTRIBUTION_ID',
+    domain_name='your-cdn.cloudfront.net'
+)
+
+@app.route('/files/<file_id>')
+def serve_file(file_id):
+    file_info = swift_upload.storage.get_metadata(file_id)
+    cdn_url = cdn.get_url(file_info['path'])
+    return redirect(cdn_url)</code></pre>
+                </div>
+            </div>
+
+            <!-- Configuration Reference -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Configuration Reference</h2>
+                    <div class="grid gap-6 md:grid-cols-2">
+                        <!-- Cache Settings -->
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4">Cache Settings</h3>
+                            <ul class="space-y-4">
+                                <li>
+                                    <div class="font-medium text-gray-900">SWIFT_CACHE_TYPE</div>
+                                    <div class="text-gray-600">Type of cache to use</div>
+                                    <div class="text-sm text-gray-500">Default: 'simple'</div>
+                                </li>
+                                <li>
+                                    <div class="font-medium text-gray-900">SWIFT_CACHE_TIMEOUT</div>
+                                    <div class="text-gray-600">Cache timeout in seconds</div>
+                                    <div class="text-sm text-gray-500">Default: 300</div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Upload Settings -->
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4">Upload Settings</h3>
+                            <ul class="space-y-4">
+                                <li>
+                                    <div class="font-medium text-gray-900">SWIFT_CHUNK_SIZE</div>
+                                    <div class="text-gray-600">Size of upload chunks</div>
+                                    <div class="text-sm text-gray-500">Default: 1MB</div>
+                                </li>
+                                <li>
+                                    <div class="font-medium text-gray-900">SWIFT_MAX_PARALLEL_CHUNKS</div>
+                                    <div class="text-gray-600">Maximum parallel chunk uploads</div>
+                                    <div class="text-sm text-gray-500">Default: 3</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/animations.js"></script>
+</body>
+</html>

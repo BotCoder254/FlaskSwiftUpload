@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Processing Example - FlaskSwiftUpload</title>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body class="bg-gray-50 font-sans antialiased" x-data="{ mobileMenu: false, darkMode: false }">
+    <!-- Navigation (Same as before) -->
+
+    <!-- Main Content -->
+    <div class="pt-24 pb-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="flex mb-8" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="../index.html" class="text-gray-500 hover:text-primary">
+                            <i class="fas fa-home mr-2"></i>
+                            Examples
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <a href="#" class="text-gray-500 hover:text-primary">Integration</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <span class="text-gray-900">Media Processing</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+
+            <div class="mb-12">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">Media Processing Example</h1>
+                <p class="text-xl text-gray-600">Learn how to process images and videos during upload</p>
+            </div>
+
+            <!-- Live Demo -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Live Demo</h2>
+                    <div x-data="mediaProcessor()" class="max-w-xl mx-auto">
+                        <!-- Image Upload -->
+                        <div class="mb-8">
+                            <h3 class="text-xl font-semibold mb-4">Image Processing</h3>
+                            <div class="grid grid-cols-2 gap-6">
+                                <!-- Original Image -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Original Image</label>
+                                    <div 
+                                        class="aspect-video bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden"
+                                        @dragover.prevent="dragOver = true"
+                                        @dragleave.prevent="dragOver = false"
+                                        @drop.prevent="handleImageDrop($event)"
+                                    >
+                                        <template x-if="!originalImage">
+                                            <div class="text-center p-6">
+                                                <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"></i>
+                                                <p class="text-sm text-gray-500">Drop image here or click to upload</p>
+                                            </div>
+                                        </template>
+                                        <template x-if="originalImage">
+                                            <img :src="originalImage" class="w-full h-full object-contain">
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <!-- Processed Image -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Processed Image</label>
+                                    <div class="aspect-video bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                                        <template x-if="!processedImage">
+                                            <div class="text-center p-6">
+                                                <i class="fas fa-image text-4xl text-gray-400 mb-2"></i>
+                                                <p class="text-sm text-gray-500">Processed image will appear here</p>
+                                            </div>
+                                        </template>
+                                        <template x-if="processedImage">
+                                            <img :src="processedImage" class="w-full h-full object-contain">
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Processing Options -->
+                            <div class="mt-4 space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Processing Options</label>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm text-gray-600 mb-1">Resize</label>
+                                            <select 
+                                                x-model="imageOptions.resize" 
+                                                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
+                                            >
+                                                <option value="none">None</option>
+                                                <option value="thumbnail">Thumbnail (150x150)</option>
+                                                <option value="medium">Medium (800x600)</option>
+                                                <option value="large">Large (1920x1080)</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm text-gray-600 mb-1">Filter</label>
+                                            <select 
+                                                x-model="imageOptions.filter" 
+                                                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
+                                            >
+                                                <option value="none">None</option>
+                                                <option value="grayscale">Grayscale</option>
+                                                <option value="sepia">Sepia</option>
+                                                <option value="blur">Blur</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button 
+                                    @click="processImage"
+                                    class="w-full bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary/90 transition-colors"
+                                    :disabled="!originalImage || processing"
+                                >
+                                    <span x-show="!processing">Process Image</span>
+                                    <span x-show="processing">
+                                        <i class="fas fa-spinner fa-spin mr-2"></i>
+                                        Processing...
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Video Processing -->
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4">Video Processing</h3>
+                            <div class="grid grid-cols-2 gap-6">
+                                <!-- Original Video -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Original Video</label>
+                                    <div 
+                                        class="aspect-video bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden"
+                                        @dragover.prevent="dragOver = true"
+                                        @dragleave.prevent="dragOver = false"
+                                        @drop.prevent="handleVideoDrop($event)"
+                                    >
+                                        <template x-if="!originalVideo">
+                                            <div class="text-center p-6">
+                                                <i class="fas fa-film text-4xl text-gray-400 mb-2"></i>
+                                                <p class="text-sm text-gray-500">Drop video here or click to upload</p>
+                                            </div>
+                                        </template>
+                                        <template x-if="originalVideo">
+                                            <video controls class="w-full h-full">
+                                                <source :src="originalVideo" type="video/mp4">
+                                            </video>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <!-- Processed Video -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Processed Video</label>
+                                    <div class="aspect-video bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                                        <template x-if="!processedVideo">
+                                            <div class="text-center p-6">
+                                                <i class="fas fa-video text-4xl text-gray-400 mb-2"></i>
+                                                <p class="text-sm text-gray-500">Processed video will appear here</p>
+                                            </div>
+                                        </template>
+                                        <template x-if="processedVideo">
+                                            <video controls class="w-full h-full">
+                                                <source :src="processedVideo" type="video/mp4">
+                                            </video>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Processing Options -->
+                            <div class="mt-4 space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Processing Options</label>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm text-gray-600 mb-1">Resolution</label>
+                                            <select 
+                                                x-model="videoOptions.resolution" 
+                                                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
+                                            >
+                                                <option value="none">Original</option>
+                                                <option value="720p">720p</option>
+                                                <option value="1080p">1080p</option>
+                                                <option value="4k">4K</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm text-gray-600 mb-1">Format</label>
+                                            <select 
+                                                x-model="videoOptions.format" 
+                                                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
+                                            >
+                                                <option value="mp4">MP4</option>
+                                                <option value="webm">WebM</option>
+                                                <option value="mov">MOV</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button 
+                                    @click="processVideo"
+                                    class="w-full bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary/90 transition-colors"
+                                    :disabled="!originalVideo || processing"
+                                >
+                                    <span x-show="!processing">Process Video</span>
+                                    <span x-show="processing">
+                                        <i class="fas fa-spinner fa-spin mr-2"></i>
+                                        Processing...
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementation -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Implementation</h2>
+
+                    <!-- Backend Code -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold mb-4">Backend (Flask)</h3>
+                        <pre class="language-python"><code>from flask import Flask
+from flask_swift_upload import SwiftUpload
+from PIL import Image
+import ffmpeg
+
+app = Flask(__name__)
+swift_upload = SwiftUpload(app)
+
+@app.route('/process/image', methods=['POST'])
+def process_image():
+    def process_callback(file_path):
+        # Open image with Pillow
+        img = Image.open(file_path)
+        
+        # Apply processing based on options
+        if request.form.get('resize') != 'none':
+            size = {
+                'thumbnail': (150, 150),
+                'medium': (800, 600),
+                'large': (1920, 1080)
+            }[request.form['resize']]
+            img = img.resize(size, Image.LANCZOS)
+        
+        if request.form.get('filter') != 'none':
+            if request.form['filter'] == 'grayscale':
+                img = img.convert('L')
+            elif request.form['filter'] == 'sepia':
+                # Apply sepia filter
+                pass
+            elif request.form['filter'] == 'blur':
+                img = img.filter(ImageFilter.BLUR)
+        
+        # Save processed image
+        processed_path = f"{file_path}_processed.{img.format.lower()}"
+        img.save(processed_path)
+        return processed_path
+
+    return swift_upload.handle_upload(
+        process_callback=process_callback,
+        allowed_extensions=['jpg', 'png', 'gif']
+    )
+
+@app.route('/process/video', methods=['POST'])
+def process_video():
+    def process_callback(file_path):
+        # Process video with ffmpeg
+        stream = ffmpeg.input(file_path)
+        
+        # Apply processing based on options
+        if request.form.get('resolution') != 'none':
+            resolution = {
+                '720p': '1280x720',
+                '1080p': '1920x1080',
+                '4k': '3840x2160'
+            }[request.form['resolution']]
+            stream = ffmpeg.filter(stream, 'scale', resolution)
+        
+        # Set output format
+        output_format = request.form.get('format', 'mp4')
+        processed_path = f"{file_path}_processed.{output_format}"
+        
+        stream = ffmpeg.output(stream, processed_path)
+        ffmpeg.run(stream)
+        return processed_path
+
+    return swift_upload.handle_upload(
+        process_callback=process_callback,
+        allowed_extensions=['mp4', 'mov', 'avi']
+    )</code></pre>
+                    </div>
+
+                    <!-- Frontend Code -->
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4">Frontend (JavaScript)</h3>
+                        <pre class="language-javascript"><code>function mediaProcessor() {
+    return {
+        originalImage: null,
+        processedImage: null,
+        originalVideo: null,
+        processedVideo: null,
+        processing: false,
+        dragOver: false,
+        
+        imageOptions: {
+            resize: 'none',
+            filter: 'none'
+        },
+        
+        videoOptions: {
+            resolution: 'none',
+            format: 'mp4'
+        },
+        
+        async handleImageDrop(event) {
+            const file = event.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                this.originalImage = URL.createObjectURL(file);
+            }
+        },
+        
+        async handleVideoDrop(event) {
+            const file = event.dataTransfer.files[0];
+            if (file && file.type.startsWith('video/')) {
+                this.originalVideo = URL.createObjectURL(file);
+            }
+        },
+        
+        async processImage() {
+            this.processing = true;
+            const formData = new FormData();
+            formData.append('file', this.originalImage);
+            formData.append('resize', this.imageOptions.resize);
+            formData.append('filter', this.imageOptions.filter);
+            
+            try {
+                const response = await fetch('/process/image', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.success) {
+                    this.processedImage = result.url;
+                }
+            } catch (error) {
+                console.error('Error processing image:', error);
+            } finally {
+                this.processing = false;
+            }
+        },
+        
+        async processVideo() {
+            this.processing = true;
+            const formData = new FormData();
+            formData.append('file', this.originalVideo);
+            formData.append('resolution', this.videoOptions.resolution);
+            formData.append('format', this.videoOptions.format);
+            
+            try {
+                const response = await fetch('/process/video', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.success) {
+                    this.processedVideo = result.url;
+                }
+            } catch (error) {
+                console.error('Error processing video:', error);
+            } finally {
+                this.processing = false;
+            }
+        }
+    };
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/animations.js"></script>
+</body>
+</html>

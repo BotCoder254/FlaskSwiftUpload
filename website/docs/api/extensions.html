@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Extensions - FlaskSwiftUpload</title>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body class="bg-gray-50 font-sans antialiased" x-data="{ mobileMenu: false, darkMode: false }">
+    <!-- Main Content -->
+    <div class="pt-24 pb-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Breadcrumb -->
+            <nav class="flex mb-8" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="../../index.html" class="text-gray-500 hover:text-primary">
+                            <i class="fas fa-home mr-2"></i>
+                            Docs
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <a href="../api/index.html" class="text-gray-500 hover:text-primary">API</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <span class="text-gray-900">Extensions</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+
+            <div class="mb-12">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">API Extensions</h1>
+                <p class="text-xl text-gray-600">Extend FlaskSwiftUpload with custom functionality</p>
+            </div>
+
+            <!-- Creating Extensions -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Creating Extensions</h2>
+                    <p class="text-gray-600 mb-6">Learn how to create custom extensions for FlaskSwiftUpload.</p>
+                    
+                    <pre class="language-python"><code>from flask_swift_upload.extensions import SwiftUploadExtension
+
+class ImageProcessingExtension(SwiftUploadExtension):
+    """Extension for processing image uploads"""
+    
+    def __init__(self, app=None):
+        super().__init__(app)
+        if app is not None:
+            self.init_app(app)
+    
+    def init_app(self, app):
+        app.config.setdefault('SWIFT_IMAGE_QUALITY', 85)
+        app.config.setdefault('SWIFT_IMAGE_MAX_SIZE', (1920, 1080))
+    
+    def before_upload(self, file):
+        """Process image before upload"""
+        if file.mimetype.startswith('image/'):
+            # Process image here
+            process_image(file)
+    
+    def after_upload(self, file_info):
+        """Post-process uploaded image"""
+        if file_info['mimetype'].startswith('image/'):
+            # Generate thumbnails, etc.
+            generate_thumbnails(file_info)
+
+# Register the extension
+image_processor = ImageProcessingExtension()
+swift_upload.register_extension(image_processor)</code></pre>
+                </div>
+            </div>
+
+            <!-- Extension Points -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Extension Points</h2>
+                    <div class="grid gap-6 md:grid-cols-2">
+                        <!-- Upload Lifecycle -->
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4">Upload Lifecycle</h3>
+                            <ul class="space-y-4">
+                                <li>
+                                    <div class="font-medium text-gray-900">before_upload(file)</div>
+                                    <div class="text-gray-600">Called before file is saved</div>
+                                </li>
+                                <li>
+                                    <div class="font-medium text-gray-900">after_upload(file_info)</div>
+                                    <div class="text-gray-600">Called after file is saved</div>
+                                </li>
+                                <li>
+                                    <div class="font-medium text-gray-900">on_error(error)</div>
+                                    <div class="text-gray-600">Called when an error occurs</div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Configuration -->
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4">Configuration</h3>
+                            <ul class="space-y-4">
+                                <li>
+                                    <div class="font-medium text-gray-900">init_app(app)</div>
+                                    <div class="text-gray-600">Initialize extension with app</div>
+                                </li>
+                                <li>
+                                    <div class="font-medium text-gray-900">get_config(key)</div>
+                                    <div class="text-gray-600">Get extension configuration</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example Extensions -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Example Extensions</h2>
+
+                    <!-- Virus Scanner -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold mb-4">Virus Scanner</h3>
+                        <pre class="language-python"><code>class VirusScannerExtension(SwiftUploadExtension):
+    def before_upload(self, file):
+        if not is_file_safe(file):
+            raise SecurityError('File appears to be malicious')
+
+virus_scanner = VirusScannerExtension()
+swift_upload.register_extension(virus_scanner)</code></pre>
+                    </div>
+
+                    <!-- Metadata Extractor -->
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4">Metadata Extractor</h3>
+                        <pre class="language-python"><code>class MetadataExtractorExtension(SwiftUploadExtension):
+    def after_upload(self, file_info):
+        metadata = extract_metadata(file_info['path'])
+        update_file_metadata(file_info['id'], metadata)
+
+metadata_extractor = MetadataExtractorExtension()
+swift_upload.register_extension(metadata_extractor)</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Built-in Extensions -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Built-in Extensions</h2>
+                    <div class="grid gap-6 md:grid-cols-2">
+                        <!-- Image Processing -->
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4">Image Processing</h3>
+                            <pre class="language-python"><code>from flask_swift_upload.extensions import ImageProcessor
+
+image_processor = ImageProcessor()
+swift_upload.register_extension(image_processor)
+
+# Configuration
+app.config.update(
+    SWIFT_IMAGE_QUALITY=85,
+    SWIFT_IMAGE_MAX_SIZE=(1920, 1080),
+    SWIFT_IMAGE_FORMATS=['jpg', 'webp']
+)</code></pre>
+                        </div>
+
+                        <!-- Video Processing -->
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4">Video Processing</h3>
+                            <pre class="language-python"><code>from flask_swift_upload.extensions import VideoProcessor
+
+video_processor = VideoProcessor()
+swift_upload.register_extension(video_processor)
+
+# Configuration
+app.config.update(
+    SWIFT_VIDEO_QUALITY='medium',
+    SWIFT_VIDEO_MAX_SIZE=(1920, 1080),
+    SWIFT_VIDEO_FORMATS=['mp4', 'webm']
+)</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/animations.js"></script>
+</body>
+</html>

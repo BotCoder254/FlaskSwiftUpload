@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration Guide - FlaskSwiftUpload</title>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body class="bg-gray-50 font-sans antialiased" x-data="{ mobileMenu: false, darkMode: false }">
+    <!-- Main Content -->
+    <div class="pt-24 pb-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Breadcrumb -->
+            <nav class="flex mb-8" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="../index.html" class="text-gray-500 hover:text-primary">
+                            <i class="fas fa-home mr-2"></i>
+                            Docs
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <span class="text-gray-900">Configuration</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+
+            <div class="mb-12">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">Configuration Guide</h1>
+                <p class="text-xl text-gray-600">Learn how to configure FlaskSwiftUpload for your needs</p>
+            </div>
+
+            <!-- Basic Configuration -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Basic Configuration</h2>
+                    <p class="text-gray-600 mb-6">Configure FlaskSwiftUpload with basic settings to get started quickly.</p>
+                    
+                    <pre class="language-python"><code>from flask import Flask
+from flask_swift_upload import SwiftUpload
+
+app = Flask(__name__)
+
+# Basic configuration
+app.config['SWIFT_UPLOAD_FOLDER'] = 'uploads'  # Upload directory
+app.config['SWIFT_MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+app.config['SWIFT_ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
+
+swift_upload = SwiftUpload(app)
+
+# Or use init_app pattern
+swift_upload = SwiftUpload()
+swift_upload.init_app(app)</code></pre>
+                </div>
+            </div>
+
+            <!-- Advanced Configuration -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Advanced Configuration</h2>
+                    <p class="text-gray-600 mb-6">Fine-tune your upload settings with advanced configuration options.</p>
+
+                    <pre class="language-python"><code># Advanced configuration options
+app.config.update(
+    SWIFT_UPLOAD_FOLDER='uploads',
+    SWIFT_MAX_CONTENT_LENGTH=16 * 1024 * 1024,
+    SWIFT_ALLOWED_EXTENSIONS={'png', 'jpg', 'jpeg', 'gif'},
+    SWIFT_CHUNK_SIZE=1024 * 1024,  # 1MB chunks for large files
+    SWIFT_FILE_OVERWRITE=False,  # Don't overwrite existing files
+    SWIFT_USE_FILENAME_HASH=True,  # Use hash for filenames
+    SWIFT_HASH_ALGORITHM='sha256',  # Hash algorithm for filenames
+    SWIFT_FILE_PERMISSIONS=0o644,  # File permissions
+    SWIFT_DIRECTORY_PERMISSIONS=0o755,  # Directory permissions
+    SWIFT_VALIDATE_MIMETYPE=True,  # Validate file MIME types
+    SWIFT_MAX_FILES=10,  # Maximum number of files per upload
+    SWIFT_ERROR_LOG_FORMAT='%(asctime)s - %(message)s'  # Error log format
+)</code></pre>
+                </div>
+            </div>
+
+            <!-- Configuration Reference -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Configuration Reference</h2>
+                    <div class="grid gap-6 md:grid-cols-2">
+                        <!-- Storage Settings -->
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4">Storage Settings</h3>
+                            <ul class="space-y-4">
+                                <li>
+                                    <div class="font-medium text-gray-900">SWIFT_UPLOAD_FOLDER</div>
+                                    <div class="text-gray-600">Directory where uploaded files are stored</div>
+                                    <div class="text-sm text-gray-500">Default: 'uploads'</div>
+                                </li>
+                                <li>
+                                    <div class="font-medium text-gray-900">SWIFT_FILE_OVERWRITE</div>
+                                    <div class="text-gray-600">Allow overwriting existing files</div>
+                                    <div class="text-sm text-gray-500">Default: False</div>
+                                </li>
+                                <li>
+                                    <div class="font-medium text-gray-900">SWIFT_USE_FILENAME_HASH</div>
+                                    <div class="text-gray-600">Use hash for filenames</div>
+                                    <div class="text-sm text-gray-500">Default: True</div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Upload Settings -->
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4">Upload Settings</h3>
+                            <ul class="space-y-4">
+                                <li>
+                                    <div class="font-medium text-gray-900">SWIFT_MAX_CONTENT_LENGTH</div>
+                                    <div class="text-gray-600">Maximum file size in bytes</div>
+                                    <div class="text-sm text-gray-500">Default: 16MB</div>
+                                </li>
+                                <li>
+                                    <div class="font-medium text-gray-900">SWIFT_ALLOWED_EXTENSIONS</div>
+                                    <div class="text-gray-600">Set of allowed file extensions</div>
+                                    <div class="text-sm text-gray-500">Default: None</div>
+                                </li>
+                                <li>
+                                    <div class="font-medium text-gray-900">SWIFT_CHUNK_SIZE</div>
+                                    <div class="text-gray-600">Size of chunks for large file uploads</div>
+                                    <div class="text-sm text-gray-500">Default: 1MB</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/animations.js"></script>
+</body>
+</html>

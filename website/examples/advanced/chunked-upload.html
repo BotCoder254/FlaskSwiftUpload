@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chunked Upload Example - FlaskSwiftUpload</title>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js"></script>
+    <link rel="stylesheet" href="../../css/styles.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4338CA',
+                        secondary: '#6D28D9',
+                        accent: '#7C3AED'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 font-sans antialiased" x-data="{ mobileMenu: false, darkMode: false }">
+    <!-- Navigation (Same as before) -->
+
+    <!-- Main Content -->
+    <div class="pt-24 pb-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="flex mb-8" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="../index.html" class="text-gray-500 hover:text-primary">
+                            <i class="fas fa-home mr-2"></i>
+                            Examples
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <a href="#" class="text-gray-500 hover:text-primary">Advanced</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <span class="text-gray-900">Chunked Upload</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+
+            <div class="mb-12">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">Chunked Upload Example</h1>
+                <p class="text-xl text-gray-600">Learn how to implement chunked file uploads for handling large files efficiently</p>
+            </div>
+
+            <!-- Live Demo -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Live Demo</h2>
+                    <div x-data="chunkedUpload()" class="max-w-xl mx-auto">
+                        <div class="mb-6">
+                            <div class="flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg"
+                                 x-on:drop.prevent="handleDrop($event)"
+                                 x-on:dragover.prevent="dragOver = true"
+                                 x-on:dragleave.prevent="dragOver = false"
+                                 :class="{'border-primary': dragOver}">
+                                <div class="space-y-1 text-center">
+                                    <i class="fas fa-cloud-upload-alt text-4xl" :class="uploading ? 'text-primary' : 'text-gray-400'"></i>
+                                    <div class="flex text-sm text-gray-600">
+                                        <label class="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-secondary">
+                                            <span>Upload a file</span>
+                                            <input type="file" class="sr-only" x-on:change="handleFileSelect">
+                                        </label>
+                                        <p class="pl-1">or drag and drop</p>
+                                    </div>
+                                    <p class="text-xs text-gray-500">Any file type up to 2GB</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Upload Progress -->
+                        <div x-show="uploading" class="mb-6">
+                            <div class="bg-gray-200 rounded-full overflow-hidden">
+                                <div class="h-2 bg-primary" :style="'width: ' + progress + '%'"></div>
+                            </div>
+                            <div class="mt-2 flex justify-between text-sm text-gray-600">
+                                <span x-text="progress + '%'"></span>
+                                <span x-text="'Chunk ' + currentChunk + ' of ' + totalChunks"></span>
+                            </div>
+                        </div>
+
+                        <!-- Success/Error Message -->
+                        <div x-show="message" class="mb-6">
+                            <div :class="{'bg-green-100 text-green-700': success, 'bg-red-100 text-red-700': !success}"
+                                 class="rounded-lg p-4">
+                                <p x-text="message"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementation -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Implementation</h2>
+
+                    <!-- Backend Code -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold mb-4">Backend (Flask)</h3>
+                        <pre class="language-python"><code>from flask import Flask
+from flask_swift_upload import SwiftUpload
+
+app = Flask(__name__)
+swift_upload = SwiftUpload(app)
+
+@app.route('/upload/chunked', methods=['POST'])
+def chunked_upload():
+    return swift_upload.handle_chunked_upload(
+        chunk_size=1024 * 1024,  # 1MB chunks
+        temp_dir='uploads/temp'
+    )</code></pre>
+                    </div>
+
+                    <!-- Frontend Code -->
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4">Frontend (JavaScript)</h3>
+                        <pre class="language-javascript"><code>function chunkedUpload() {
+    return {
+        dragOver: false,
+        uploading: false,
+        progress: 0,
+        currentChunk: 0,
+        totalChunks: 0,
+        message: '',
+        success: false,
+        chunkSize: 1024 * 1024, // 1MB
+
+        async uploadChunks(file) {
+            this.uploading = true;
+            this.totalChunks = Math.ceil(file.size / this.chunkSize);
+            
+            for (let chunk = 0; chunk < this.totalChunks; chunk++) {
+                this.currentChunk = chunk + 1;
+                const start = chunk * this.chunkSize;
+                const end = Math.min(start + this.chunkSize, file.size);
+                const fileChunk = file.slice(start, end);
+
+                const formData = new FormData();
+                formData.append('file', fileChunk);
+                formData.append('chunk', chunk);
+                formData.append('total_chunks', this.totalChunks);
+
+                try {
+                    const response = await fetch('/upload/chunked', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const result = await response.json();
+
+                    if (!result.success) {
+                        throw new Error(result.error);
+                    }
+
+                    this.progress = Math.round((chunk + 1) / this.totalChunks * 100);
+                } catch (error) {
+                    this.message = error.message;
+                    this.success = false;
+                    this.uploading = false;
+                    return;
+                }
+            }
+
+            this.message = 'Upload completed successfully!';
+            this.success = true;
+            this.uploading = false;
+        },
+
+        handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                this.uploadChunks(file);
+            }
+        },
+
+        handleDrop(event) {
+            this.dragOver = false;
+            const file = event.dataTransfer.files[0];
+            if (file) {
+                this.uploadChunks(file);
+            }
+        }
+    };
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Features -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Additional Features</h2>
+                    <div class="grid gap-6 md:grid-cols-2">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4">Pause & Resume</h3>
+                            <p class="text-gray-600 mb-4">Add pause and resume functionality to your chunked uploads:</p>
+                            <pre class="language-javascript"><code>// Add to chunkedUpload function
+isPaused: false,
+
+pauseUpload() {
+    this.isPaused = true;
+},
+
+resumeUpload() {
+    this.isPaused = false;
+    this.uploadChunks(this.currentFile);
+}</code></pre>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4">Upload Queue</h3>
+                            <p class="text-gray-600 mb-4">Implement a queue for multiple file uploads:</p>
+                            <pre class="language-javascript"><code>// Add to chunkedUpload function
+uploadQueue: [],
+
+addToQueue(file) {
+    this.uploadQueue.push(file);
+    if (!this.uploading) {
+        this.processQueue();
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/animations.js"></script>
+</body>
+</html>

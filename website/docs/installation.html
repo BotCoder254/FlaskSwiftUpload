@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Installation - FlaskSwiftUpload Documentation</title>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+    <link rel="stylesheet" href="../css/styles.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4338CA',
+                        secondary: '#6D28D9',
+                        accent: '#7C3AED'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 font-sans antialiased" x-data="{ mobileMenu: false, darkMode: false, sidebar: false }">
+    <!-- Navigation (Same as docs/index.html) -->
+    <nav class="fixed w-full bg-white/80 backdrop-blur-md shadow-sm z-50 dark:bg-gray-900/80">
+        <!-- ... (Same navigation code as docs/index.html) ... -->
+    </nav>
+
+    <!-- Documentation Layout -->
+    <div class="pt-16">
+        <!-- Sidebar Toggle (Mobile) -->
+        <div class="fixed bottom-4 right-4 sm:hidden z-50">
+            <button @click="sidebar = !sidebar" class="p-3 rounded-full bg-primary text-white shadow-lg">
+                <i class="fas" :class="sidebar ? 'fa-times' : 'fa-bars'"></i>
+            </button>
+        </div>
+
+        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex">
+                <!-- Sidebar (Same as docs/index.html) -->
+                <div class="...">
+                    <!-- ... (Same sidebar code as docs/index.html) ... -->
+                </div>
+
+                <!-- Main content -->
+                <div class="flex-1 min-w-0 sm:pl-72">
+                    <div class="py-12 px-4 sm:px-6 lg:px-8">
+                        <div class="prose max-w-none">
+                            <nav class="flex mb-8" aria-label="Breadcrumb">
+                                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                                    <li class="inline-flex items-center">
+                                        <a href="index.html" class="text-gray-500 hover:text-primary">
+                                            <i class="fas fa-home mr-2"></i>
+                                            Documentation
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <div class="flex items-center">
+                                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                                            <span class="text-gray-900">Installation</span>
+                                        </div>
+                                    </li>
+                                </ol>
+                            </nav>
+
+                            <h1 class="text-4xl font-bold text-gray-900 mb-8">Installation</h1>
+
+                            <!-- Requirements -->
+                            <div class="mb-12">
+                                <h2 class="text-2xl font-bold mb-4">Requirements</h2>
+                                <div class="bg-white rounded-lg shadow-sm p-6">
+                                    <ul class="space-y-2">
+                                        <li class="flex items-center">
+                                            <i class="fas fa-check text-green-500 mr-2"></i>
+                                            Python 3.7 or higher
+                                        </li>
+                                        <li class="flex items-center">
+                                            <i class="fas fa-check text-green-500 mr-2"></i>
+                                            Flask 2.0 or higher
+                                        </li>
+                                        <li class="flex items-center">
+                                            <i class="fas fa-check text-green-500 mr-2"></i>
+                                            MongoDB (optional, for GridFS support)
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Installation Methods -->
+                            <div class="mb-12">
+                                <h2 class="text-2xl font-bold mb-4">Installation Methods</h2>
+                                
+                                <!-- Pip Installation -->
+                                <div class="mb-8">
+                                    <h3 class="text-xl font-semibold mb-4">Using pip</h3>
+                                    <div class="bg-gray-900 rounded-lg p-4 mb-4">
+                                        <pre class="language-bash"><code>pip install flask-swift-upload</code></pre>
+                                    </div>
+                                    <p class="text-gray-600">This is the recommended method for most users.</p>
+                                </div>
+
+                                <!-- Poetry Installation -->
+                                <div class="mb-8">
+                                    <h3 class="text-xl font-semibold mb-4">Using Poetry</h3>
+                                    <div class="bg-gray-900 rounded-lg p-4 mb-4">
+                                        <pre class="language-bash"><code>poetry add flask-swift-upload</code></pre>
+                                    </div>
+                                </div>
+
+                                <!-- Git Installation -->
+                                <div>
+                                    <h3 class="text-xl font-semibold mb-4">From Source</h3>
+                                    <div class="bg-gray-900 rounded-lg p-4 mb-4">
+                                        <pre class="language-bash"><code>git clone https://github.com/username/flask-swift-upload.git
+cd flask-swift-upload
+pip install -e .</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Verification -->
+                            <div class="mb-12">
+                                <h2 class="text-2xl font-bold mb-4">Verify Installation</h2>
+                                <p class="mb-4">You can verify the installation by running Python and importing the package:</p>
+                                <div class="bg-gray-900 rounded-lg p-4 mb-4">
+                                    <pre class="language-python"><code>from flask_swift_upload import SwiftUpload
+
+# Should print the version number
+print(SwiftUpload.__version__)</code></pre>
+                                </div>
+                            </div>
+
+                            <!-- Next Steps -->
+                            <div class="bg-primary/5 rounded-lg p-6">
+                                <h2 class="text-xl font-bold mb-4">Next Steps</h2>
+                                <p class="mb-4">Now that you have installed FlaskSwiftUpload, you can:</p>
+                                <ul class="space-y-2">
+                                    <li>
+                                        <a href="quickstart.html" class="text-primary hover:text-secondary flex items-center">
+                                            <i class="fas fa-play-circle mr-2"></i>
+                                            Follow the Quickstart guide
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="configuration.html" class="text-primary hover:text-secondary flex items-center">
+                                            <i class="fas fa-cog mr-2"></i>
+                                            Configure your application
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="../examples/index.html" class="text-primary hover:text-secondary flex items-center">
+                                            <i class="fas fa-code mr-2"></i>
+                                            Check out the examples
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/animations.js"></script>
+</body>
+</html>

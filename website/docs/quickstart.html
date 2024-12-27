@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quickstart - FlaskSwiftUpload</title>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-html.min.js"></script>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body class="bg-gray-50 font-sans antialiased" x-data="{ mobileMenu: false, darkMode: false, sidebar: false }">
+    <!-- Navigation (Same as before) -->
+
+    <!-- Documentation Layout -->
+    <div class="pt-16">
+        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex">
+                <!-- Sidebar (Same as before) -->
+
+                <!-- Main content -->
+                <div class="flex-1 min-w-0 sm:pl-72">
+                    <div class="py-12 px-4 sm:px-6 lg:px-8">
+                        <div class="prose max-w-none">
+                            <h1 class="text-4xl font-bold text-gray-900 mb-8">Quickstart Guide</h1>
+
+                            <!-- Interactive Demo -->
+                            <div class="bg-white rounded-xl shadow-lg p-8 mb-12" x-data="{ step: 1 }">
+                                <div class="flex justify-between mb-8">
+                                    <button 
+                                        @click="step = Math.max(1, step - 1)"
+                                        class="px-4 py-2 text-sm font-medium text-primary hover:text-secondary"
+                                        :class="{ 'opacity-50 cursor-not-allowed': step === 1 }"
+                                    >
+                                        <i class="fas fa-arrow-left mr-2"></i>
+                                        Previous
+                                    </button>
+                                    <button 
+                                        @click="step = Math.min(4, step + 1)"
+                                        class="px-4 py-2 text-sm font-medium text-primary hover:text-secondary"
+                                        :class="{ 'opacity-50 cursor-not-allowed': step === 4 }"
+                                    >
+                                        Next
+                                        <i class="fas fa-arrow-right ml-2"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Step 1: Installation -->
+                                <div x-show="step === 1">
+                                    <h2 class="text-2xl font-bold mb-4">Step 1: Installation</h2>
+                                    <p class="mb-4">First, install FlaskSwiftUpload using pip:</p>
+                                    <div class="bg-gray-900 rounded-lg p-4 mb-6">
+                                        <pre class="language-bash"><code>pip install flask-swift-upload</code></pre>
+                                    </div>
+                                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
+                                        <p class="text-blue-700">Make sure you have Flask installed in your environment.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Step 2: Basic Setup -->
+                                <div x-show="step === 2">
+                                    <h2 class="text-2xl font-bold mb-4">Step 2: Basic Setup</h2>
+                                    <p class="mb-4">Create a new Flask application and initialize FlaskSwiftUpload:</p>
+                                    <div class="bg-gray-900 rounded-lg p-4 mb-6">
+                                        <pre class="language-python"><code>from flask import Flask
+from flask_swift_upload import SwiftUpload
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your-secret-key'
+app.config['UPLOAD_FOLDER'] = 'uploads'
+
+swift_upload = SwiftUpload(app)
+
+@app.route('/')
+def index():
+    return render_template('index.html')</code></pre>
+                                    </div>
+                                </div>
+
+                                <!-- Step 3: Create Upload Form -->
+                                <div x-show="step === 3">
+                                    <h2 class="text-2xl font-bold mb-4">Step 3: Create Upload Form</h2>
+                                    <p class="mb-4">Create an HTML template with a file upload form:</p>
+                                    <div class="bg-gray-900 rounded-lg p-4 mb-6">
+                                        <pre class="language-html"><code>&lt;form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data"&gt;
+    &lt;input type="file" name="file" accept="image/*"&gt;
+    &lt;button type="submit"&gt;Upload&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+                                    </div>
+                                </div>
+
+                                <!-- Step 4: Handle Upload -->
+                                <div x-show="step === 4">
+                                    <h2 class="text-2xl font-bold mb-4">Step 4: Handle Upload</h2>
+                                    <p class="mb-4">Create a route to handle file uploads:</p>
+                                    <div class="bg-gray-900 rounded-lg p-4 mb-6">
+                                        <pre class="language-python"><code>@app.route('/upload', methods=['POST'])
+def upload():
+    return swift_upload.handle_upload(
+        allowed_extensions=['jpg', 'png', 'gif'],
+        max_size=5 * 1024 * 1024  # 5MB
+    )</code></pre>
+                                    </div>
+                                    <div class="bg-green-50 border-l-4 border-green-400 p-4">
+                                        <p class="text-green-700">That's it! Your file upload system is ready to use.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Try It Out -->
+                            <div class="bg-white rounded-xl shadow-lg p-8 mb-12">
+                                <h2 class="text-2xl font-bold mb-6">Try It Out</h2>
+                                <div x-data="{ uploading: false, success: false, error: null }">
+                                    <form 
+                                        @submit.prevent="handleUpload"
+                                        class="max-w-xl mx-auto"
+                                    >
+                                        <div class="mb-6">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Upload Image</label>
+                                            <div class="flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+                                                <div class="space-y-1 text-center">
+                                                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-400"></i>
+                                                    <div class="flex text-sm text-gray-600">
+                                                        <label class="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-secondary">
+                                                            <span>Upload a file</span>
+                                                            <input type="file" class="sr-only" accept="image/*">
+                                                        </label>
+                                                        <p class="pl-1">or drag and drop</p>
+                                                    </div>
+                                                    <p class="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button 
+                                            type="submit"
+                                            class="w-full bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary/90 transition-colors"
+                                            :disabled="uploading"
+                                        >
+                                            <span x-show="!uploading">Upload</span>
+                                            <span x-show="uploading">
+                                                <i class="fas fa-spinner fa-spin mr-2"></i>
+                                                Uploading...
+                                            </span>
+                                        </button>
+                                    </form>
+
+                                    <!-- Success/Error Message -->
+                                    <div x-show="success || error" class="mt-4">
+                                        <div 
+                                            :class="success ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
+                                            class="rounded-lg p-4"
+                                        >
+                                            <p x-text="success ? 'File uploaded successfully!' : error"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Next Steps -->
+                            <div class="bg-primary/5 rounded-lg p-6">
+                                <h2 class="text-xl font-bold mb-4">Next Steps</h2>
+                                <ul class="space-y-2">
+                                    <li>
+                                        <a href="configuration.html" class="text-primary hover:text-secondary flex items-center">
+                                            <i class="fas fa-cog mr-2"></i>
+                                            Configure advanced options
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="file-handling.html" class="text-primary hover:text-secondary flex items-center">
+                                            <i class="fas fa-file mr-2"></i>
+                                            Learn about file handling
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="../examples/advanced/chunked-upload.html" class="text-primary hover:text-secondary flex items-center">
+                                            <i class="fas fa-layer-group mr-2"></i>
+                                            Explore advanced features
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/animations.js"></script>
+</body>
+</html>

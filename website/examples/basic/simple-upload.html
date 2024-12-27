@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Upload Example - FlaskSwiftUpload</title>
+    <base href="../../">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+    
+    <!-- Scripts -->
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        'primary-dark': '#2563EB',
+                        accent: '#10B981'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 font-sans antialiased transition-colors duration-200 dark:bg-gray-900" 
+      x-data="{ mobileMenu: false, darkMode: localStorage.getItem('darkMode') === 'true' }" 
+      :class="{ 'dark': darkMode }"
+      x-init="$watch('darkMode', val => localStorage.setItem('darkMode', val))">
+    
+    <div class="min-h-screen pt-16 pb-12">
+        <!-- Breadcrumb -->
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <ol class="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+                <li>
+                    <a href="./" class="hover:text-primary">Home</a>
+                </li>
+                <li>
+                    <i class="fas fa-chevron-right text-xs"></i>
+                </li>
+                <li>
+                    <a href="./examples/" class="hover:text-primary">Examples</a>
+                </li>
+                <li>
+                    <i class="fas fa-chevron-right text-xs"></i>
+                </li>
+                <li>Simple Upload</li>
+            </ol>
+        </nav>
+
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-12">
+                <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">Simple File Upload</h1>
+                <p class="text-xl text-gray-600 dark:text-gray-300">Learn how to implement basic file uploads with FlaskSwiftUpload</p>
+            </div>
+
+            <!-- Live Demo -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Live Demo</h2>
+                    
+                    <div class="max-w-xl mx-auto" x-data="uploadDemo()">
+                        <div class="mb-8">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Select a file to upload
+                            </label>
+                            <div class="flex items-center justify-center w-full">
+                                <label class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500">
+                                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-500 dark:text-gray-400 mb-4"></i>
+                                        <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                                            <span class="font-semibold">Click to upload</span> or drag and drop
+                                        </p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">Any file up to 10MB</p>
+                                    </div>
+                                    <input 
+                                        type="file" 
+                                        class="hidden" 
+                                        @change="handleFileSelect"
+                                    >
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Upload Progress -->
+                        <div x-show="isUploading" class="mb-4">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Uploading...</span>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300" x-text="progress + '%'"></span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                <div class="bg-primary h-2.5 rounded-full transition-all duration-300" :style="'width: ' + progress + '%'"></div>
+                            </div>
+                        </div>
+
+                        <!-- Success Message -->
+                        <div x-show="uploadSuccess" class="p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg dark:bg-green-200 dark:text-green-800" role="alert">
+                            <span class="font-medium">Success!</span> File has been uploaded successfully.
+                        </div>
+
+                        <!-- Error Message -->
+                        <div x-show="uploadError" class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800" role="alert">
+                            <span class="font-medium">Error!</span> <span x-text="errorMessage"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Code Example -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Implementation</h2>
+                    
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Python (Flask)</h3>
+                        <pre><code class="language-python">from flask import Flask
+from flask_swift_upload import SwiftUpload
+
+app = Flask(__name__)
+app.config['SWIFT_UPLOAD_FOLDER'] = 'uploads'
+app.config['SWIFT_MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB max
+app.config['SWIFT_ALLOWED_EXTENSIONS'] = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+
+swift_upload = SwiftUpload(app)
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    return swift_upload.handle_upload()</code></pre>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">JavaScript</h3>
+                        <pre><code class="language-javascript">function uploadDemo() {
+    return {
+        isUploading: false,
+        progress: 0,
+        uploadSuccess: false,
+        uploadError: false,
+        errorMessage: '',
+        
+        handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            this.uploadFile(file);
+        },
+        
+        async uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            this.isUploading = true;
+            this.progress = 0;
+            this.uploadSuccess = false;
+            this.uploadError = false;
+            
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData,
+                    onUploadProgress: (event) => {
+                        this.progress = Math.round((event.loaded * 100) / event.total);
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Upload failed');
+                
+                this.uploadSuccess = true;
+            } catch (error) {
+                this.uploadError = true;
+                this.errorMessage = error.message;
+            } finally {
+                this.isUploading = false;
+            }
+        }
+    }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuration -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Configuration Options</h2>
+                    
+                    <div class="grid gap-6 md:grid-cols-2">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Basic Settings</h3>
+                            <ul class="space-y-4 text-gray-600 dark:text-gray-300">
+                                <li>
+                                    <code class="text-sm bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">SWIFT_UPLOAD_FOLDER</code>
+                                    <div class="mt-1">Directory where uploaded files will be stored</div>
+                                </li>
+                                <li>
+                                    <code class="text-sm bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">SWIFT_MAX_CONTENT_LENGTH</code>
+                                    <div class="mt-1">Maximum allowed file size in bytes</div>
+                                </li>
+                                <li>
+                                    <code class="text-sm bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">SWIFT_ALLOWED_EXTENSIONS</code>
+                                    <div class="mt-1">Set of allowed file extensions</div>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Security Options</h3>
+                            <ul class="space-y-4 text-gray-600 dark:text-gray-300">
+                                <li>
+                                    <code class="text-sm bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">SWIFT_VALIDATE_MIMETYPE</code>
+                                    <div class="mt-1">Enable MIME type validation</div>
+                                </li>
+                                <li>
+                                    <code class="text-sm bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">SWIFT_USE_FILENAME_HASH</code>
+                                    <div class="mt-1">Hash filenames for security</div>
+                                </li>
+                                <li>
+                                    <code class="text-sm bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">SWIFT_SECURE_UPLOAD</code>
+                                    <div class="mt-1">Enable additional security checks</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Prism.js syntax highlighting
+        Prism.highlightAll();
+    </script>
+</body>
+</html>

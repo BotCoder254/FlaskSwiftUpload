@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error Handling - FlaskSwiftUpload</title>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body class="bg-gray-50 font-sans antialiased" x-data="{ mobileMenu: false, darkMode: false }">
+    <!-- Main Content -->
+    <div class="pt-24 pb-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Breadcrumb -->
+            <nav class="flex mb-8" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="../index.html" class="text-gray-500 hover:text-primary">
+                            <i class="fas fa-home mr-2"></i>
+                            Docs
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <span class="text-gray-900">Error Handling</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+
+            <div class="mb-12">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">Error Handling</h1>
+                <p class="text-xl text-gray-600">Handle upload errors gracefully and provide meaningful feedback</p>
+            </div>
+
+            <!-- Common Errors -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Common Errors</h2>
+                    <div class="grid gap-6 md:grid-cols-2">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4">File Size Errors</h3>
+                            <pre class="language-python"><code>from flask_swift_upload.exceptions import FileSizeError
+
+@app.errorhandler(FileSizeError)
+def handle_file_size_error(error):
+    return {
+        'error': 'File too large',
+        'max_size': app.config['SWIFT_MAX_CONTENT_LENGTH'],
+        'file_size': error.file_size
+    }, 413</code></pre>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4">File Type Errors</h3>
+                            <pre class="language-python"><code>from flask_swift_upload.exceptions import FileTypeError
+
+@app.errorhandler(FileTypeError)
+def handle_file_type_error(error):
+    return {
+        'error': 'Invalid file type',
+        'allowed_types': app.config['SWIFT_ALLOWED_EXTENSIONS'],
+        'file_type': error.file_type
+    }, 415</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom Error Handling -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Custom Error Handling</h2>
+                    <pre class="language-python"><code>from flask_swift_upload.exceptions import SwiftUploadError
+
+class CustomUploadError(SwiftUploadError):
+    """Custom error for specific upload scenarios"""
+    pass
+
+def validate_upload(file):
+    if not meets_custom_criteria(file):
+        raise CustomUploadError("File doesn't meet custom criteria")
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    try:
+        return swift_upload.handle_upload(
+            validate_callback=validate_upload
+        )
+    except CustomUploadError as e:
+        return {'error': str(e)}, 400
+    except SwiftUploadError as e:
+        return {'error': str(e)}, 400</code></pre>
+                </div>
+            </div>
+
+            <!-- Client-Side Error Handling -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Client-Side Error Handling</h2>
+                    <pre class="language-javascript"><code>async function uploadFile(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const response = await fetch('/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            switch (response.status) {
+                case 413:
+                    throw new Error(`File too large. Maximum size: ${error.max_size} bytes`);
+                case 415:
+                    throw new Error(`Invalid file type. Allowed types: ${error.allowed_types.join(', ')}`);
+                default:
+                    throw new Error(error.error || 'Upload failed');
+            }
+        }
+
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error('Upload error:', error);
+        // Handle error in UI
+        showErrorMessage(error.message);
+    }
+}</code></pre>
+                </div>
+            </div>
+
+            <!-- Error Reference -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Error Reference</h2>
+                    <div class="grid gap-6 md:grid-cols-2">
+                        <!-- Built-in Errors -->
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4">Built-in Errors</h3>
+                            <ul class="space-y-4">
+                                <li>
+                                    <div class="font-medium text-gray-900">FileSizeError</div>
+                                    <div class="text-gray-600">File exceeds maximum size limit</div>
+                                    <div class="text-sm text-gray-500">Status Code: 413</div>
+                                </li>
+                                <li>
+                                    <div class="font-medium text-gray-900">FileTypeError</div>
+                                    <div class="text-gray-600">File type not allowed</div>
+                                    <div class="text-sm text-gray-500">Status Code: 415</div>
+                                </li>
+                                <li>
+                                    <div class="font-medium text-gray-900">StorageError</div>
+                                    <div class="text-gray-600">Error saving file to storage</div>
+                                    <div class="text-sm text-gray-500">Status Code: 500</div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- HTTP Status Codes -->
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4">HTTP Status Codes</h3>
+                            <ul class="space-y-4">
+                                <li>
+                                    <div class="font-medium text-gray-900">400 Bad Request</div>
+                                    <div class="text-gray-600">Invalid request or validation error</div>
+                                </li>
+                                <li>
+                                    <div class="font-medium text-gray-900">413 Payload Too Large</div>
+                                    <div class="text-gray-600">File size exceeds limit</div>
+                                </li>
+                                <li>
+                                    <div class="font-medium text-gray-900">415 Unsupported Media Type</div>
+                                    <div class="text-gray-600">File type not allowed</div>
+                                </li>
+                                <li>
+                                    <div class="font-medium text-gray-900">500 Internal Server Error</div>
+                                    <div class="text-gray-600">Server-side error during upload</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/animations.js"></script>
+</body>
+</html>

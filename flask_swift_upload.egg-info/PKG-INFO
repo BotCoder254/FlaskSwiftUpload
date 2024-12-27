@@ -1,0 +1,25 @@
+Metadata-Version: 2.1
+Name: flask-swift-upload
+Version: 0.1.0
+Summary: Professional file upload module for Flask
+Home-page: https://github.com/yourusername/flask-swift-upload
+Author: Your Name
+Author-email: your.email@example.com
+Classifier: Development Status :: 3 - Alpha
+Classifier: Framework :: Flask
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Requires-Python: >=3.8
+Requires-Dist: Flask>=2.0.0
+Requires-Dist: Flask-PyMongo>=2.3.0
+Requires-Dist: python-magic>=0.4.27
+Requires-Dist: Pillow>=9.0.0
+Requires-Dist: ffmpeg-python>=0.2.0
+Requires-Dist: typing-extensions>=4.0.0
+Requires-Dist: aiofiles>=0.8.0
+
+A professional file upload module for Flask applications

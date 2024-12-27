@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rate Limiting - FlaskSwiftUpload</title>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body class="bg-gray-50 font-sans antialiased" x-data="{ mobileMenu: false, darkMode: false }">
+    <!-- Main Content -->
+    <div class="pt-24 pb-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Breadcrumb -->
+            <nav class="flex mb-8" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="../index.html" class="text-gray-500 hover:text-primary">
+                            <i class="fas fa-home mr-2"></i>
+                            Docs
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <span class="text-gray-900">Rate Limiting</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+
+            <div class="mb-12">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">Rate Limiting</h1>
+                <p class="text-xl text-gray-600">Control upload rates and prevent abuse</p>
+            </div>
+
+            <!-- Basic Rate Limiting -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Basic Rate Limiting</h2>
+                    <p class="text-gray-600 mb-6">Implement basic rate limiting for file uploads.</p>
+                    
+                    <pre class="language-python"><code>from flask import Flask
+from flask_swift_upload import SwiftUpload
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+app = Flask(__name__)
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"]
+)
+swift_upload = SwiftUpload(app)
+
+@app.route('/upload', methods=['POST'])
+@limiter.limit("10 per minute")
+def upload_file():
+    return swift_upload.handle_upload()</code></pre>
+                </div>
+            </div>
+
+            <!-- Advanced Rate Limiting -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Advanced Rate Limiting</h2>
+
+                    <!-- Per-User Limits -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold mb-4">Per-User Limits</h3>
+                        <pre class="language-python"><code>def get_user_limit_key():
+    if current_user.is_authenticated:
+        return f"user:{current_user.id}"
+    return get_remote_address()
+
+@app.route('/upload', methods=['POST'])
+@limiter.limit("1000/day", key_func=get_user_limit_key)
+@limiter.limit("100/hour", key_func=get_user_limit_key)
+def user_upload():
+    return swift_upload.handle_upload()</code></pre>
+                    </div>
+
+                    <!-- Dynamic Limits -->
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4">Dynamic Limits</h3>
+                        <pre class="language-python"><code>def get_dynamic_limit():
+    if current_user.is_premium:
+        return "1000 per day"
+    return "100 per day"
+
+@app.route('/upload', methods=['POST'])
+@limiter.limit(get_dynamic_limit)
+def dynamic_upload():
+    return swift_upload.handle_upload()</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Storage Quotas -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Storage Quotas</h2>
+                    <pre class="language-python"><code>def check_storage_quota(file):
+    user_storage = get_user_storage_usage(current_user.id)
+    file_size = len(file.read())
+    file.seek(0)  # Reset file pointer
+    
+    if user_storage + file_size > current_user.storage_quota:
+        raise QuotaExceededError(
+            f"Storage quota exceeded. Available: {current_user.storage_quota - user_storage} bytes"
+        )
+
+@app.route('/upload', methods=['POST'])
+def quota_upload():
+    return swift_upload.handle_upload(
+        validate_callback=check_storage_quota
+    )</code></pre>
+                </div>
+            </div>
+
+            <!-- Configuration Reference -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Configuration Reference</h2>
+                    <div class="grid gap-6 md:grid-cols-2">
+                        <!-- Rate Limits -->
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4">Rate Limits</h3>
+                            <ul class="space-y-4">
+                                <li>
+                                    <div class="font-medium text-gray-900">SWIFT_RATE_LIMIT_ENABLED</div>
+                                    <div class="text-gray-600">Enable/disable rate limiting</div>
+                                    <div class="text-sm text-gray-500">Default: True</div>
+                                </li>
+                                <li>
+                                    <div class="font-medium text-gray-900">SWIFT_DEFAULT_LIMITS</div>
+                                    <div class="text-gray-600">Default rate limits</div>
+                                    <div class="text-sm text-gray-500">Default: ["100/day"]</div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Storage Quotas -->
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4">Storage Quotas</h3>
+                            <ul class="space-y-4">
+                                <li>
+                                    <div class="font-medium text-gray-900">SWIFT_QUOTA_ENABLED</div>
+                                    <div class="text-gray-600">Enable/disable storage quotas</div>
+                                    <div class="text-sm text-gray-500">Default: False</div>
+                                </li>
+                                <li>
+                                    <div class="font-medium text-gray-900">SWIFT_DEFAULT_QUOTA</div>
+                                    <div class="text-gray-600">Default storage quota in bytes</div>
+                                    <div class="text-sm text-gray-500">Default: 1GB</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/animations.js"></script>
+</body>
+</html>

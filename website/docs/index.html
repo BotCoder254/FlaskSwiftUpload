@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation - FlaskSwiftUpload</title>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <link rel="stylesheet" href="../css/styles.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4338CA',
+                        secondary: '#6D28D9',
+                        accent: '#7C3AED'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 font-sans antialiased" x-data="{ mobileMenu: false, darkMode: false, sidebar: false }">
+    <!-- Navigation -->
+    <nav class="fixed w-full bg-white/80 backdrop-blur-md shadow-sm z-50 dark:bg-gray-900/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center space-x-3">
+                        <a href="../index.html">
+                            <img src="../images/logo.svg" class="h-8 w-auto" alt="FlaskSwiftUpload Logo">
+                        </a>
+                        <span class="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">FlaskSwiftUpload</span>
+                    </div>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:space-x-8 items-center">
+                    <a href="../index.html#features" class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-primary">
+                        <i class="fas fa-cube mr-2"></i>Features
+                    </a>
+                    <a href="index.html" class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-primary">
+                        <i class="fas fa-book mr-2"></i>Documentation
+                    </a>
+                    <a href="../examples/index.html" class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-primary">
+                        <i class="fas fa-code mr-2"></i>Examples
+                    </a>
+                    <a href="https://github.com" class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-primary">
+                        <i class="fab fa-github mr-2"></i>GitHub
+                    </a>
+                    <button @click="darkMode = !darkMode" class="p-2 rounded-full hover:bg-gray-100">
+                        <i class="fas" :class="darkMode ? 'fa-sun' : 'fa-moon'"></i>
+                    </button>
+                </div>
+                <!-- Mobile menu button -->
+                <div class="flex items-center sm:hidden">
+                    <button @click="mobileMenu = !mobileMenu" class="p-2 rounded-md text-gray-400 hover:text-gray-500">
+                        <i class="fas" :class="mobileMenu ? 'fa-times' : 'fa-bars'"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile menu -->
+        <div x-show="mobileMenu" class="sm:hidden bg-white/95 backdrop-blur-md">
+            <div class="pt-2 pb-3 space-y-1">
+                <a href="../index.html#features" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:text-primary">Features</a>
+                <a href="index.html" class="block pl-3 pr-4 py-2 text-base font-medium text-primary">Documentation</a>
+                <a href="../examples/index.html" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:text-primary">Examples</a>
+                <a href="https://github.com" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:text-primary">GitHub</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Documentation Layout -->
+    <div class="pt-16">
+        <!-- Sidebar Toggle (Mobile) -->
+        <div class="fixed bottom-4 right-4 sm:hidden z-50">
+            <button @click="sidebar = !sidebar" class="p-3 rounded-full bg-primary text-white shadow-lg">
+                <i class="fas" :class="sidebar ? 'fa-times' : 'fa-bars'"></i>
+            </button>
+        </div>
+
+        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex">
+                <!-- Sidebar -->
+                <div :class="{'translate-x-0': sidebar, '-translate-x-full': !sidebar}" class="fixed inset-y-0 left-0 z-40 w-72 bg-white dark:bg-gray-900 transform sm:translate-x-0 transition-transform duration-300 ease-in-out overflow-y-auto border-r border-gray-200 dark:border-gray-800">
+                    <div class="sticky top-0 pt-20 pb-8 px-6">
+                        <nav class="space-y-1">
+                            <div class="pb-4">
+                                <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Getting Started</h3>
+                                <ul class="mt-2 space-y-2">
+                                    <li>
+                                        <a href="installation.html" class="group flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:text-primary hover:bg-primary/5">
+                                            <i class="fas fa-download mr-3 text-gray-400 group-hover:text-primary"></i>
+                                            Installation
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="quickstart.html" class="group flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:text-primary hover:bg-primary/5">
+                                            <i class="fas fa-play mr-3 text-gray-400 group-hover:text-primary"></i>
+                                            Quickstart
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="pb-4">
+                                <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Core Concepts</h3>
+                                <ul class="mt-2 space-y-2">
+                                    <li>
+                                        <a href="configuration.html" class="group flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:text-primary hover:bg-primary/5">
+                                            <i class="fas fa-cog mr-3 text-gray-400 group-hover:text-primary"></i>
+                                            Configuration
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="file-handling.html" class="group flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:text-primary hover:bg-primary/5">
+                                            <i class="fas fa-file mr-3 text-gray-400 group-hover:text-primary"></i>
+                                            File Handling
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="chunked-uploads.html" class="group flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:text-primary hover:bg-primary/5">
+                                            <i class="fas fa-upload mr-3 text-gray-400 group-hover:text-primary"></i>
+                                            Chunked Uploads
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="pb-4">
+                                <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Advanced</h3>
+                                <ul class="mt-2 space-y-2">
+                                    <li>
+                                        <a href="mongodb.html" class="group flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:text-primary hover:bg-primary/5">
+                                            <i class="fas fa-database mr-3 text-gray-400 group-hover:text-primary"></i>
+                                            MongoDB Integration
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="media-processing.html" class="group flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:text-primary hover:bg-primary/5">
+                                            <i class="fas fa-photo-film mr-3 text-gray-400 group-hover:text-primary"></i>
+                                            Media Processing
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="security.html" class="group flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:text-primary hover:bg-primary/5">
+                                            <i class="fas fa-shield mr-3 text-gray-400 group-hover:text-primary"></i>
+                                            Security
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="pb-4">
+                                <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">API Reference</h3>
+                                <ul class="mt-2 space-y-2">
+                                    <li>
+                                        <a href="api/core.html" class="group flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:text-primary hover:bg-primary/5">
+                                            <i class="fas fa-code mr-3 text-gray-400 group-hover:text-primary"></i>
+                                            Core API
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="api/extensions.html" class="group flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:text-primary hover:bg-primary/5">
+                                            <i class="fas fa-puzzle-piece mr-3 text-gray-400 group-hover:text-primary"></i>
+                                            Extensions
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Main content -->
+                <div class="flex-1 min-w-0 sm:pl-72">
+                    <div class="py-12 px-4 sm:px-6 lg:px-8">
+                        <div class="prose max-w-none">
+                            <h1 class="text-4xl font-bold text-gray-900 mb-8">Documentation</h1>
+                            
+                            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                <!-- Getting Started Card -->
+                                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6">
+                                    <div class="text-primary mb-4">
+                                        <i class="fas fa-rocket text-2xl"></i>
+                                    </div>
+                                    <h2 class="text-xl font-semibold mb-2">Getting Started</h2>
+                                    <p class="text-gray-600 mb-4">Quick installation and basic usage guide to get you up and running.</p>
+                                    <a href="quickstart.html" class="text-primary hover:text-secondary flex items-center">
+                                        Learn more
+                                        <i class="fas fa-arrow-right ml-2"></i>
+                                    </a>
+                                </div>
+
+                                <!-- Core Concepts Card -->
+                                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6">
+                                    <div class="text-primary mb-4">
+                                        <i class="fas fa-book text-2xl"></i>
+                                    </div>
+                                    <h2 class="text-xl font-semibold mb-2">Core Concepts</h2>
+                                    <p class="text-gray-600 mb-4">Learn about the fundamental concepts and features.</p>
+                                    <a href="configuration.html" class="text-primary hover:text-secondary flex items-center">
+                                        Learn more
+                                        <i class="fas fa-arrow-right ml-2"></i>
+                                    </a>
+                                </div>
+
+                                <!-- Advanced Features Card -->
+                                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6">
+                                    <div class="text-primary mb-4">
+                                        <i class="fas fa-layer-group text-2xl"></i>
+                                    </div>
+                                    <h2 class="text-xl font-semibold mb-2">Advanced Features</h2>
+                                    <p class="text-gray-600 mb-4">Explore advanced features and integrations.</p>
+                                    <a href="mongodb.html" class="text-primary hover:text-secondary flex items-center">
+                                        Learn more
+                                        <i class="fas fa-arrow-right ml-2"></i>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="mt-12">
+                                <h2 class="text-2xl font-bold mb-6">Popular Topics</h2>
+                                <div class="grid gap-4 md:grid-cols-2">
+                                    <a href="chunked-uploads.html" class="flex items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                                        <i class="fas fa-upload text-primary mr-4"></i>
+                                        <div>
+                                            <h3 class="font-medium">Chunked Uploads</h3>
+                                            <p class="text-sm text-gray-600">Handle large file uploads efficiently</p>
+                                        </div>
+                                    </a>
+                                    <a href="media-processing.html" class="flex items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                                        <i class="fas fa-photo-film text-primary mr-4"></i>
+                                        <div>
+                                            <h3 class="font-medium">Media Processing</h3>
+                                            <p class="text-sm text-gray-600">Process and optimize media files</p>
+                                        </div>
+                                    </a>
+                                    <a href="mongodb.html" class="flex items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                                        <i class="fas fa-database text-primary mr-4"></i>
+                                        <div>
+                                            <h3 class="font-medium">MongoDB Integration</h3>
+                                            <p class="text-sm text-gray-600">Store files in MongoDB GridFS</p>
+                                        </div>
+                                    </a>
+                                    <a href="security.html" class="flex items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                                        <i class="fas fa-shield text-primary mr-4"></i>
+                                        <div>
+                                            <h3 class="font-medium">Security</h3>
+                                            <p class="text-sm text-gray-600">Secure file upload best practices</p>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/animations.js"></script>
+</body>
+</html>

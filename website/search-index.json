@@ -1,0 +1,37 @@
+[
+    {
+        "title": "Installation",
+        "url": "/docs/installation.html",
+        "content": "Learn how to install FlaskSwiftUpload in your Flask application",
+        "excerpt": "Quick installation guide for FlaskSwiftUpload with pip, poetry, or from source.",
+        "tags": ["installation", "setup", "getting started"]
+    },
+    {
+        "title": "Chunked Upload",
+        "url": "/examples/advanced/chunked-upload.html",
+        "content": "Implement chunked file uploads for handling large files efficiently",
+        "excerpt": "Learn how to handle large file uploads by splitting them into smaller chunks.",
+        "tags": ["chunked upload", "large files", "advanced"]
+    },
+    {
+        "title": "Core API Reference",
+        "url": "/docs/api/core.html",
+        "content": "Complete API reference for FlaskSwiftUpload core functionality",
+        "excerpt": "Detailed documentation of all core API methods and classes.",
+        "tags": ["api", "reference", "methods"]
+    },
+    {
+        "title": "MongoDB Integration",
+        "url": "/docs/mongodb.html",
+        "content": "Store uploaded files in MongoDB GridFS",
+        "excerpt": "Learn how to integrate MongoDB GridFS for file storage.",
+        "tags": ["mongodb", "gridfs", "database"]
+    },
+    {
+        "title": "Security Best Practices",
+        "url": "/docs/security.html",
+        "content": "Security guidelines and best practices for file uploads",
+        "excerpt": "Implement secure file upload handling with validation and sanitization.",
+        "tags": ["security", "validation", "best practices"]
+    }
+]

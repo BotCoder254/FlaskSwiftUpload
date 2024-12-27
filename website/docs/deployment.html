@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testing & Deployment - FlaskSwiftUpload</title>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body class="bg-gray-50 font-sans antialiased" x-data="{ mobileMenu: false, darkMode: false }">
+    <!-- Main Content -->
+    <div class="pt-24 pb-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Breadcrumb -->
+            <nav class="flex mb-8" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="../index.html" class="text-gray-500 hover:text-primary">
+                            <i class="fas fa-home mr-2"></i>
+                            Docs
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <span class="text-gray-900">Testing & Deployment</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+
+            <div class="mb-12">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">Testing & Deployment</h1>
+                <p class="text-xl text-gray-600">Test and deploy your FlaskSwiftUpload application</p>
+            </div>
+
+            <!-- Testing -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Testing</h2>
+                    
+                    <!-- Unit Tests -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold mb-4">Unit Tests</h3>
+                        <pre class="language-python"><code>import pytest
+from flask import Flask
+from flask_swift_upload import SwiftUpload
+from io import BytesIO
+
+@pytest.fixture
+def app():
+    app = Flask(__name__)
+    app.config['TESTING'] = True
+    app.config['SWIFT_UPLOAD_FOLDER'] = 'tests/uploads'
+    return app
+
+@pytest.fixture
+def swift_upload(app):
+    return SwiftUpload(app)
+
+def test_file_upload(client, swift_upload):
+    data = {
+        'file': (BytesIO(b'test file content'), 'test.txt')
+    }
+    response = client.post('/upload', data=data)
+    assert response.status_code == 200
+    assert 'file_id' in response.json</code></pre>
+                    </div>
+
+                    <!-- Integration Tests -->
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4">Integration Tests</h3>
+                        <pre class="language-python"><code>def test_chunked_upload(client, swift_upload):
+    # Test chunk upload
+    chunk1 = b'Hello '
+    chunk2 = b'World!'
+    
+    # Upload first chunk
+    response = client.post('/upload/chunked', data={
+        'file': (BytesIO(chunk1), 'test.txt'),
+        'chunk': '1',
+        'total_chunks': '2'
+    })
+    assert response.status_code == 202
+    
+    # Upload second chunk
+    response = client.post('/upload/chunked', data={
+        'file': (BytesIO(chunk2), 'test.txt'),
+        'chunk': '2',
+        'total_chunks': '2'
+    })
+    assert response.status_code == 200
+    
+    # Verify final file
+    file_id = response.json['file_id']
+    file_content = swift_upload.storage.get_file(file_id).read()
+    assert file_content == b'Hello World!'</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deployment -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Deployment</h2>
+
+                    <!-- Docker -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold mb-4">Docker Deployment</h3>
+                        <pre class="language-dockerfile"><code># Dockerfile
+FROM python:3.9-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY . .
+
+ENV FLASK_APP=app.py
+ENV FLASK_ENV=production
+ENV SWIFT_UPLOAD_FOLDER=/data/uploads
+
+VOLUME ["/data/uploads"]
+
+CMD ["gunicorn", "app:app", "-w", "4", "-b", "0.0.0.0:8000"]</code></pre>
+                    </div>
+
+                    <!-- Production Configuration -->
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4">Production Configuration</h3>
+                        <pre class="language-python"><code># config/production.py
+import os
+
+SWIFT_UPLOAD_FOLDER = '/data/uploads'
+SWIFT_MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+SWIFT_ALLOWED_EXTENSIONS = {'png', 'jpg', 'pdf'}
+
+# Security settings
+SWIFT_USE_FILENAME_HASH = True
+SWIFT_VALIDATE_MIMETYPE = True
+
+# Performance settings
+SWIFT_CHUNK_SIZE = 1024 * 1024
+SWIFT_MAX_PARALLEL_CHUNKS = 3
+
+# Cache settings
+SWIFT_CACHE_TYPE = 'redis'
+SWIFT_CACHE_REDIS_URL = os.getenv('REDIS_URL')
+
+# Storage settings
+SWIFT_STORAGE_BACKEND = 's3'
+SWIFT_S3_BUCKET = os.getenv('S3_BUCKET')
+SWIFT_S3_REGION = os.getenv('AWS_REGION')</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monitoring -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold mb-6">Monitoring</h2>
+                    <div class="grid gap-6 md:grid-cols-2">
+                        <!-- Metrics -->
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4">Metrics Collection</h3>
+                            <pre class="language-python"><code>from prometheus_flask_exporter import PrometheusMetrics
+
+metrics = PrometheusMetrics(app)
+
+# Track upload sizes
+upload_size = metrics.histogram(
+    'upload_size_bytes',
+    'Size of uploaded files'
+)
+
+@app.route('/upload', methods=['POST'])
+@upload_size.track_inprogress()
+def upload_file():
+    return swift_upload.handle_upload()</code></pre>
+                        </div>
+
+                        <!-- Logging -->
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4">Logging</h3>
+                            <pre class="language-python"><code>import logging
+from logging.handlers import RotatingFileHandler
+
+handler = RotatingFileHandler(
+    'uploads.log',
+    maxBytes=10000,
+    backupCount=3
+)
+handler.setLevel(logging.INFO)
+app.logger.addHandler(handler)
+
+@app.route('/upload', methods=['POST'])
+def logged_upload():
+    try:
+        result = swift_upload.handle_upload()
+        app.logger.info(f"Upload success: {result}")
+        return result
+    except Exception as e:
+        app.logger.error(f"Upload failed: {e}")
+        raise</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/animations.js"></script>
+</body>
+</html>
